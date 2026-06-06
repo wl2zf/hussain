@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CipherForge ✦ بوابة التشفير</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <canvas id="matrix"></canvas>
+
+    <main class="shell">
+      <header class="hero">
+        <h1 class="logo">Cipher<span>Forge</span> ✦</h1>
+        <p class="tagline">بوابة التشفير الراقية — أربع خوارزميات بين يديكِ</p>
+      </header>
+
+      <section class="card glass">
+        <!-- اختيار الخوارزمية -->
+        <label class="field-label">الخوارزمية</label>
+        <div id="algoList" class="algo-grid"></div>
+        <p id="algoDesc" class="algo-desc"></p>
+
+        <!-- تبويبات نص/ملف -->
+        <div class="tabs">
+          <button class="tab active" data-mode="text">✎ نص</button>
+          <button class="tab" data-mode="file">📁 ملف / صورة / صوت</button>
+        </div>
+
+        <!-- مدخل النص -->
+        <div id="textPane" class="pane">
+          <label class="field-label">النص / البيانات</label>
+          <textarea
+            id="textInput"
+            class="input"
+            rows="5"
+            placeholder="اكتبي النص هنا، أو الصقي النص المشفّر لفكّه..."
+          ></textarea>
+        </div>
+
+        <!-- مدخل الملف -->
+        <div id="filePane" class="pane hidden">
+          <label class="field-label">الملف (حتى 50MB)</label>
+          <input id="fileInput" class="input file" type="file" />
+          <p class="hint">
+            عند فك التشفير: اتركي الملف فارغًا والصقي النص المشفّر في خانة النص.
+          </p>
+        </div>
+
+        <!-- بيانات السرّ -->
+        <div id="passwordPane" class="pane">
+          <label class="field-label">كلمة المرور</label>
+          <input
+            id="passwordInput"
+            class="input"
+            type="password"
+            placeholder="كلمة المرور السرّية"
+          />
+        </div>
+
+        <!-- مفاتيح RSA -->
+        <div id="rsaPane" class="pane hidden">
+          <div class="rsa-head">
+            <label class="field-label">مفاتيح RSA</label>
+            <button id="genKeysBtn" class="btn ghost small">⚷ توليد زوج مفاتيح</button>
+          </div>
+          <label class="field-label sub">المفتاح العام (للتشفير)</label>
+          <textarea id="publicKey" class="input mono" rows="4" placeholder="-----BEGIN PUBLIC KEY-----"></textarea>
+          <label class="field-label sub">المفتاح الخاص (لفك التشفير)</label>
+          <textarea id="privateKey" class="input mono" rows="4" placeholder="-----BEGIN PRIVATE KEY-----"></textarea>
+        </div>
+
+        <!-- الأزرار -->
+        <div class="actions">
+          <button id="encryptBtn" class="btn primary">🔒 تشفير</button>
+          <button id="decryptBtn" class="btn secondary">🔓 فك التشفير</button>
+        </div>
+
+        <!-- النتيجة -->
+        <div id="resultPane" class="pane hidden">
+          <div class="result-head">
+            <label class="field-label">النتيجة</label>
+            <div class="result-tools">
+              <button id="copyBtn" class="btn ghost small">📋 نسخ</button>
+              <button id="downloadBtn" class="btn ghost small">⬇ تحميل</button>
+            </div>
+          </div>
+          <textarea id="resultOutput" class="input mono" rows="5" readonly></textarea>
+        </div>
+
+        <div id="status" class="status"></div>
+      </section>
+
+      <footer class="foot">صُنع بحبّ ✦ CipherForge</footer>
+    </main>
+
+    <script src="js/matrix.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,310 @@
+/* ===== CipherForge — تصميم داكن أنثوي راقٍ ===== */
+:root {
+  --bg-0: #140a1f;
+  --bg-1: #1d1030;
+  --violet: #b06ab3;
+  --violet-soft: #c98bd6;
+  --pink: #ff6ec7;
+  --pink-soft: #ffa6dd;
+  --gold: #e8c07d;
+  --text: #f3e9ff;
+  --text-dim: #c9b6dd;
+  --glass: rgba(40, 22, 64, 0.55);
+  --glass-border: rgba(255, 110, 199, 0.25);
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  font-family: "Segoe UI", "Tahoma", system-ui, sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at 20% 0%, #2a1442 0%, var(--bg-0) 55%) fixed;
+}
+
+#matrix {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.55;
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+/* ===== الترويسة ===== */
+.hero {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.logo {
+  font-size: 2.6rem;
+  margin: 0;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, var(--pink), var(--violet-soft), var(--gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 14px rgba(255, 110, 199, 0.35));
+}
+
+.logo span {
+  font-weight: 300;
+}
+
+.tagline {
+  color: var(--text-dim);
+  margin-top: 8px;
+  font-size: 1rem;
+}
+
+/* ===== البطاقة الزجاجية ===== */
+.glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.card {
+  padding: 26px;
+}
+
+.field-label {
+  display: block;
+  margin: 16px 0 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--pink-soft);
+}
+
+.field-label.sub {
+  color: var(--text-dim);
+  font-weight: 500;
+  margin-top: 12px;
+}
+
+/* ===== شبكة الخوارزميات ===== */
+.algo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.algo-card {
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.algo-card:hover {
+  border-color: var(--pink);
+  transform: translateY(-2px);
+}
+
+.algo-card.selected {
+  background: linear-gradient(135deg, rgba(255, 110, 199, 0.22), rgba(176, 106, 179, 0.22));
+  border-color: var(--pink);
+  color: var(--text);
+  box-shadow: 0 8px 24px rgba(255, 110, 199, 0.25);
+}
+
+.algo-desc {
+  margin: 12px 2px 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  min-height: 1.2em;
+}
+
+/* ===== التبويبات ===== */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin: 22px 0 6px;
+}
+
+.tab {
+  flex: 1;
+  padding: 11px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-dim);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+}
+
+.tab.active {
+  background: linear-gradient(135deg, rgba(176, 106, 179, 0.3), rgba(255, 110, 199, 0.2));
+  color: var(--text);
+  border-color: var(--pink);
+}
+
+/* ===== المدخلات ===== */
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: rgba(10, 4, 20, 0.5);
+  color: var(--text);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+  resize: vertical;
+}
+
+.input:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px rgba(255, 110, 199, 0.18);
+}
+
+.input.mono {
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 0.82rem;
+  direction: ltr;
+  text-align: left;
+}
+
+.input.file {
+  padding: 9px;
+  cursor: pointer;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin: 8px 2px 0;
+}
+
+.rsa-head,
+.result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ===== الأزرار ===== */
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn {
+  border: none;
+  border-radius: 12px;
+  padding: 13px 18px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.2s ease, box-shadow 0.2s ease;
+  color: #fff;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn.primary {
+  flex: 1;
+  background: linear-gradient(135deg, var(--pink), var(--violet));
+  box-shadow: 0 10px 26px rgba(255, 110, 199, 0.35);
+}
+
+.btn.secondary {
+  flex: 1;
+  background: linear-gradient(135deg, var(--violet), #6d4b8f);
+  box-shadow: 0 10px 26px rgba(176, 106, 179, 0.3);
+}
+
+.btn.primary:hover,
+.btn.secondary:hover {
+  filter: brightness(1.08);
+}
+
+.btn.ghost {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  color: var(--pink-soft);
+}
+
+.btn.small {
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.btn[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ===== النتيجة والحالة ===== */
+.result-tools {
+  display: flex;
+  gap: 8px;
+}
+
+.status {
+  margin-top: 16px;
+  min-height: 1.4em;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.status.ok {
+  color: #8ef0c0;
+}
+
+.status.err {
+  color: #ff9aa2;
+}
+
+.status.busy {
+  color: var(--gold);
+}
+
+.pane.hidden {
+  display: none;
+}
+
+.foot {
+  text-align: center;
+  margin-top: 26px;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 560px) {
+  .algo-grid {
+    grid-template-columns: 1fr;
+  }
+  .actions {
+    flex-direction: column;
+  }
+}

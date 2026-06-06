@@ -1,0 +1,50 @@
+{
+  "name": "cipherforge",
+  "version": "1.0.0",
+  "description": "CipherForge — تطبيق تشفير شامل بأربع خوارزميات (AES-256-GCM, RSA-OAEP, ChaCha20-Poly1305, Triple-DES)",
+  "main": "main.js",
+  "author": "CipherForge",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "electron": "electron .",
+    "dist": "electron-builder --win",
+    "dist:portable": "electron-builder --win portable"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^8.0.0",
+    "multer": "^2.0.0"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.cipherforge.app",
+    "productName": "CipherForge",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "server.js",
+      "main.js",
+      "src/**/*",
+      "public/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}
