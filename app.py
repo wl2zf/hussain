@@ -9,7 +9,43 @@ All cryptography is performed server-side using the `cryptography` library.
 """
 
 import os
+import sys
 import base64
+import importlib.util
+import subprocess
+
+
+def ensure_dependencies():
+    """Install required packages on first run.
+
+    This lets the app work straight from VS Code's ▶ Run button (or a
+    double-click) on a fresh machine that only has Python installed — no
+    manual `pip install` needed. If the packages are already present this
+    is a fast no-op.
+    """
+    required = {
+        "flask": "flask==3.0.0",
+        "cryptography": "cryptography==42.0.0",
+    }
+    missing = [spec for mod, spec in required.items()
+               if importlib.util.find_spec(mod) is None]
+    if not missing:
+        return
+    print("[Tashfeer] Installing required packages:", ", ".join(missing))
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", *missing])
+        importlib.invalidate_caches()
+    except Exception as exc:  # noqa: BLE001
+        sys.exit(
+            "\n[Tashfeer] Could not auto-install dependencies.\n"
+            "Please run this once in the terminal:\n"
+            "    pip install -r requirements.txt\n"
+            f"Details: {exc}\n"
+        )
+
+
+# Make sure dependencies exist BEFORE importing them below.
+ensure_dependencies()
 
 from flask import Flask, request, jsonify, render_template, send_file
 
@@ -353,5 +389,21 @@ def decrypt_route():
         ), 400
 
 
+def _open_browser():
+    """Open the app in the default browser (ignored if none is available)."""
+    import webbrowser
+    try:
+        webbrowser.open("http://localhost:5000")
+    except Exception:  # noqa: BLE001 — headless environments, etc.
+        pass
+
+
 if __name__ == "__main__":
+    # The reloader runs this file twice; WERKZEUG_RUN_MAIN is "true" only in
+    # the worker process, so the browser opens exactly once.
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        import threading
+        threading.Timer(1.2, _open_browser).start()
+
+    print("\n[Tashfeer] Running at http://localhost:5000  —  press Ctrl+C to stop\n")
     app.run(debug=True, port=5000)
