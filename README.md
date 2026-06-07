@@ -1,68 +1,54 @@
-# تشفير · Tashfeer
+# تشفير — Tashfeer
 
-A local, single-machine encryption tool with an elegant dark UI. Pick an
-algorithm, drop in text or a file, supply a password (or RSA keys), and get
-encrypted output you can decrypt back to the original — all crypto runs
-server-side in Python using the [`cryptography`](https://cryptography.io)
-library.
+A clean, zero-configuration encryption tool. Encrypt and decrypt text, files,
+images and audio using **AES-256-GCM**, **RSA-2048**, **ChaCha20-Poly1305** or
+**Triple-DES** — all from an elegant dark, bilingual (العربية / English) web UI.
 
-## Features
-
-- **Four algorithms**, all implemented end-to-end:
-  - **AES-256-GCM** — authenticated encryption, PBKDF2 key derivation
-  - **RSA-2048 (OAEP/SHA-256)** — hybrid (RSA + AES) so any size works
-  - **ChaCha20-Poly1305** — fast authenticated encryption
-  - **Triple-DES (CBC + PKCS7)** — legacy / educational
-- Encrypt and decrypt **text** or **any file**
-- In-browser **RSA key-pair generation**
-- **Bilingual UI** (العربية / English) with RTL/LTR switching
-- No external services — everything stays on `localhost`
-
-## Setup
+## Run
 
 ```bash
-# 1. Install dependencies
 pip install -r requirements.txt
-
-# 2. Run the server
 python app.py
-
-# 3. Open your browser
-#    http://localhost:5000
 ```
 
-## How it works
+Then open: **http://localhost:5000**
 
-| Algorithm    | Key input            | Output format (before base64)             |
-|--------------|----------------------|-------------------------------------------|
-| AES-256-GCM  | password             | `salt(16) + nonce(12) + ciphertext+tag`   |
-| ChaCha20     | password             | `salt(16) + nonce(12) + ciphertext+tag`   |
-| Triple-DES   | password             | `salt(16) + iv(8) + ciphertext`           |
-| RSA-2048     | public/private (PEM) | `enc_key_len(2) + enc_key + nonce + ct`   |
+> First run installs the two dependencies automatically if they're missing, so
+> even `python app.py` on a fresh machine just works. The browser opens on its
+> own once the server is up.
 
-- **Text** results are returned base64-encoded in JSON.
-- **Files** are encrypted to a `.tashfeer` download; decrypting a
-  `<name>.tashfeer` file restores `<name>`.
-- Password keys are derived with **PBKDF2-HMAC-SHA256, 100,000 iterations**
-  and a fresh random 16-byte salt every time.
+## Supported input types
 
-> ⚠️ To decrypt, select the **same algorithm** used to encrypt and provide the
-> matching password / key.
+- **Text** — plain text
+- **Files** — any file type
+- **Images** — jpg, png, gif… (with preview)
+- **Audio** — mp3, wav, ogg… (with player)
 
-## Project structure
+## Algorithms
+
+| Algorithm    | Type       | Use case             |
+|--------------|------------|----------------------|
+| AES-256-GCM  | Symmetric  | Standard encryption  |
+| RSA-2048     | Asymmetric | Key exchange         |
+| ChaCha20     | Symmetric  | Mobile / speed       |
+| Triple-DES   | Symmetric  | Legacy / educational |
+
+- Password algorithms derive keys with **PBKDF2-HMAC-SHA256, 100,000 iterations**
+  and a fresh random salt each time.
+- **RSA** uses **hybrid encryption** (a random AES-256-GCM key is wrapped with
+  RSA-OAEP/SHA-256), so it works for any text or file size.
+- Encrypted files download as `name.tashfeer`; decrypting restores `name`.
+
+> To decrypt, pick the **same algorithm** and supply the matching password / key.
+
+## Project layout
 
 ```
 .
 ├── app.py              # Flask server + all crypto logic
-├── requirements.txt    # Dependencies
-├── templates/
-│   └── index.html      # Full UI (HTML + CSS + JS)
-├── uploads/            # Temp folder for uploads (auto-created)
-└── outputs/            # Encrypted/decrypted outputs (auto-created)
+├── requirements.txt    # flask, cryptography
+└── templates/
+    └── index.html      # Complete UI
 ```
 
-## Security notes
-
-This is a practical tool and a learning project. Triple-DES is included for
-educational purposes only — prefer AES-256-GCM or ChaCha20-Poly1305 for real
-use. Keep your RSA **private key** secret; only ever share the **public key**.
+`uploads/` and `outputs/` are created automatically at startup.

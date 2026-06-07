@@ -1,13 +1,9 @@
 # Python
 __pycache__/
 *.pyc
-*.pyo
 .venv/
 venv/
-env/
 
-# Tashfeer working files (keep the folders, ignore their contents)
-uploads/*
-outputs/*
-!uploads/.gitkeep
-!outputs/.gitkeep
+# Tashfeer runtime folders (auto-created)
+uploads/
+outputs/

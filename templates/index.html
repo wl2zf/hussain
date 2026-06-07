@@ -7,498 +7,348 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   />
   <style>
     :root {
-      --bg: #0a0a0f;
-      --surface: #111118;
-      --card: #16161e;
-      --border: #2a2a3a;
-      --accent: #6c63ff;
-      --accent-hover: #8b85ff;
-      --success: #00d4a0;
+      --bg: #0d0d14;
+      --surface: #13131f;
+      --card: #13131f;
+      --border: #252535;
+      --accent: #7c6aff;
+      --accent-2: #9a8cff;
+      --success: #00c896;
       --error: #ff4757;
-      --text: #e8e8f0;
-      --muted: #6b6b80;
+      --text: #dddde8;
+      --muted: #6a6a80;
       --mono: "IBM Plex Mono", monospace;
-      --sans: "IBM Plex Sans", sans-serif;
+      --sans: "IBM Plex Sans Arabic", "IBM Plex Mono", sans-serif;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background: var(--bg);
       color: var(--text);
       font-family: var(--sans);
       min-height: 100vh;
-      line-height: 1.5;
-      background-image:
-        radial-gradient(circle at 15% 10%, rgba(108, 99, 255, 0.10), transparent 40%),
-        radial-gradient(circle at 85% 90%, rgba(0, 212, 160, 0.06), transparent 40%);
+      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      background-image:
+        radial-gradient(circle at 12% 8%, rgba(124, 106, 255, 0.10), transparent 42%),
+        radial-gradient(circle at 88% 92%, rgba(0, 200, 150, 0.05), transparent 42%);
     }
+    .container { max-width: 860px; margin: 0 auto; padding: 30px 18px 70px; }
 
-    .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
-
-    /* ---------- Header ---------- */
+    /* Header */
     header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-      opacity: 0;
-      animation: fadeIn 0.6s ease forwards;
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 22px; border-bottom: 1px solid var(--border);
+      animation: fadeIn 0.6s ease;
     }
-    .logo { display: flex; align-items: baseline; gap: 12px; }
-    .logo .mark {
-      font-family: var(--mono);
-      font-weight: 700;
-      font-size: 30px;
-      letter-spacing: 1px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .logo { display: flex; align-items: baseline; gap: 10px; font-family: var(--mono); }
+    .logo .ar {
+      font-size: 28px; font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .logo .sub {
-      font-family: var(--mono);
-      color: var(--muted);
-      font-size: 13px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
+    .logo .sep { color: var(--border); font-size: 22px; }
+    .logo .en { font-size: 14px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; }
+    .lang-btn {
+      font-family: var(--mono); font-size: 13px; background: var(--surface);
+      color: var(--text); border: 1px solid var(--border); border-radius: 10px;
+      padding: 9px 16px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .lang-btn:hover { border-color: var(--accent); color: var(--accent-2); }
+
+    .label {
+      font-family: var(--mono); font-size: 12px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--muted); margin: 26px 0 12px;
     }
 
-    .lang-toggle {
-      display: flex;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      font-family: var(--mono);
-      font-size: 13px;
+    /* Algorithm cards */
+    .algos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .algo {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 16px 12px; cursor: pointer; text-align: center;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      animation: fadeUp 0.5s ease both;
     }
-    .lang-toggle button {
-      background: transparent;
-      color: var(--muted);
-      border: none;
-      padding: 8px 14px;
-      cursor: pointer;
+    .algo:nth-child(1){animation-delay:.05s} .algo:nth-child(2){animation-delay:.12s}
+    .algo:nth-child(3){animation-delay:.19s} .algo:nth-child(4){animation-delay:.26s}
+    .algo:hover { transform: translateY(-2px); border-color: #34344a; }
+    .algo.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 0 22px rgba(124, 106, 255, 0.35);
+      transform: translateY(-2px);
+    }
+    .algo .ic { font-size: 22px; }
+    .algo .nm { font-family: var(--mono); font-weight: 600; font-size: 14px; margin: 8px 0 4px; }
+    .algo .ds { font-size: 12px; color: var(--muted); }
+
+    /* Mode tabs */
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab {
+      flex: 1; min-width: 90px; background: var(--surface); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 12px; padding: 12px;
+      font-family: var(--mono); font-size: 14px; font-weight: 600; cursor: pointer;
       transition: all 0.2s ease;
     }
-    .lang-toggle button.active { background: var(--accent); color: #fff; }
-
-    /* ---------- Tabs ---------- */
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-top: 28px;
-      opacity: 0;
-      animation: fadeIn 0.6s ease 0.1s forwards;
-    }
-    .tab {
-      flex: 1;
-      background: var(--surface);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      font-family: var(--mono);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      letter-spacing: 0.5px;
-    }
     .tab.active {
-      color: var(--text);
-      border-color: var(--accent);
-      background: linear-gradient(180deg, rgba(108, 99, 255, 0.12), var(--surface));
-      box-shadow: 0 0 0 1px rgba(108, 99, 255, 0.3);
+      color: var(--text); border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(124, 106, 255, 0.12), var(--surface));
     }
 
-    /* ---------- Section label ---------- */
-    .label {
-      font-family: var(--mono);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: var(--muted);
-      margin: 28px 0 12px;
-    }
+    /* Panels */
+    .panel { margin-top: 14px; }
+    .panel.hidden, .hidden { display: none !important; }
 
-    /* ---------- Algorithm cards ---------- */
-    .algos {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-    .algo-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px 14px;
-      cursor: pointer;
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-      opacity: 0;
-      animation: fadeUp 0.5s ease forwards;
-    }
-    .algo-card:nth-child(1) { animation-delay: 0.15s; }
-    .algo-card:nth-child(2) { animation-delay: 0.22s; }
-    .algo-card:nth-child(3) { animation-delay: 0.29s; }
-    .algo-card:nth-child(4) { animation-delay: 0.36s; }
-    .algo-card:hover { transform: translateY(-2px); border-color: #3b3b50; }
-    .algo-card.active {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent), 0 0 22px rgba(108, 99, 255, 0.35);
-      transform: translateY(-2px) scale(1.02);
-    }
-    .algo-card .icon { font-size: 20px; }
-    .algo-card .name {
-      font-family: var(--mono);
-      font-weight: 600;
-      font-size: 14px;
-      margin: 8px 0 4px;
-    }
-    .algo-card .desc { font-size: 12px; color: var(--muted); }
-
-    /* ---------- Input mode switch ---------- */
-    .mode-switch { display: inline-flex; gap: 6px; background: var(--surface);
-      border: 1px solid var(--border); border-radius: 10px; padding: 4px; }
-    .mode-switch button {
-      background: transparent; color: var(--muted); border: none;
-      padding: 7px 18px; border-radius: 7px; cursor: pointer;
-      font-family: var(--mono); font-size: 13px; transition: all 0.2s ease;
-    }
-    .mode-switch button.active { background: var(--accent); color: #fff; }
-
-    /* ---------- Inputs ---------- */
-    textarea, input[type="password"], input[type="text"] {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 14px;
-      padding: 14px;
-      resize: vertical;
+    textarea, input[type="password"] {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text); font-family: var(--mono);
+      font-size: 14px; padding: 14px; resize: vertical;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
-    textarea { min-height: 130px; }
+    #text-input { min-height: 140px; }
     textarea:focus, input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.18);
+      outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124, 106, 255, 0.18);
     }
     textarea::placeholder, input::placeholder { color: var(--muted); }
 
-    .field { margin-top: 14px; }
-
-    /* ---------- File dropzone ---------- */
+    /* Dropzones */
     .dropzone {
-      border: 2px dashed var(--border);
-      border-radius: 14px;
-      padding: 40px 20px;
-      text-align: center;
-      cursor: pointer;
+      border: 2px dashed var(--border); border-radius: 14px; padding: 34px 18px;
+      text-align: center; cursor: pointer; background: var(--surface);
       transition: all 0.2s ease;
-      background: var(--surface);
     }
-    .dropzone:hover { border-color: #3b3b50; }
+    .dropzone:hover { border-color: #34344a; }
     .dropzone.dragover {
-      border-color: var(--accent);
-      background: rgba(108, 99, 255, 0.08);
-      box-shadow: inset 0 0 30px rgba(108, 99, 255, 0.15);
+      border-color: var(--accent); background: rgba(124, 106, 255, 0.08);
+      box-shadow: inset 0 0 30px rgba(124, 106, 255, 0.15);
     }
-    .dropzone .dz-icon { font-size: 34px; }
-    .dropzone .dz-text { color: var(--muted); margin-top: 10px; font-size: 14px; }
-    .dropzone .dz-file {
-      margin-top: 12px; font-family: var(--mono); font-size: 13px;
-      color: var(--success); word-break: break-all;
-    }
+    .dropzone .dz-ic { font-size: 32px; }
+    .dropzone p { color: var(--muted); margin-top: 8px; font-size: 14px; }
+    .dropzone .fname { margin-top: 10px; font-family: var(--mono); font-size: 13px; color: var(--success); word-break: break-all; }
+    #preview { max-width: 100%; max-height: 260px; display: none; margin-top: 14px; border-radius: 10px; }
+    #audio-preview { display: none; width: 100%; margin-top: 14px; }
 
-    /* ---------- Key section ---------- */
-    .key-note {
-      font-size: 13px; margin-top: 8px; display: flex; gap: 8px; align-items: flex-start;
+    /* Key section */
+    .rsa-key-block { margin-top: 12px; }
+    .rsa-key-block .kl {
+      font-family: var(--mono); font-size: 12px; letter-spacing: 1px; margin-bottom: 6px; display: block;
     }
-    .key-note.info { color: var(--accent-hover); }
-    .key-note.warn { color: var(--error); }
-
-    .btn {
-      font-family: var(--mono);
-      font-weight: 600;
-      border-radius: 12px;
-      cursor: pointer;
-      border: 1px solid var(--border);
-      transition: all 0.2s ease;
+    .rsa-key-block textarea { min-height: 90px; font-size: 11px; }
+    .note { font-size: 12px; margin-top: 6px; }
+    .note.info { color: var(--accent-2); }
+    .note.warn { color: var(--error); }
+    .btn-ghost {
+      font-family: var(--mono); font-size: 13px; background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 12px; padding: 11px 18px; cursor: pointer;
+      margin-top: 14px; transition: all 0.2s ease;
     }
-    .btn-secondary {
-      background: var(--surface); color: var(--text);
-      padding: 11px 18px; font-size: 13px; margin-top: 14px;
-    }
-    .btn-secondary:hover { border-color: var(--accent); color: var(--accent-hover); }
-
-    .keypair { margin-top: 16px; display: none; }
-    .keypair.show { display: block; }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent-2); }
+    .gen-keys { margin-top: 14px; display: none; }
+    .gen-keys.show { display: block; }
     .keybox { margin-top: 12px; }
-    .keybox .kb-head {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 6px;
-    }
-    .keybox .kb-head span { font-family: var(--mono); font-size: 12px; letter-spacing: 1px; }
-    .keybox textarea { min-height: 90px; font-size: 11px; }
-    .copy-btn {
-      background: transparent; border: 1px solid var(--border); color: var(--muted);
-      border-radius: 8px; padding: 4px 10px; cursor: pointer; font-family: var(--mono);
-      font-size: 11px; transition: all 0.2s ease;
-    }
-    .copy-btn:hover { border-color: var(--accent); color: var(--accent-hover); }
+    .keybox .kh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .keybox .kh span { font-family: var(--mono); font-size: 12px; letter-spacing: 1px; }
+    .copy { background: transparent; border: 1px solid var(--border); color: var(--muted);
+      border-radius: 8px; padding: 4px 10px; cursor: pointer; font-family: var(--mono); font-size: 11px; transition: all 0.2s ease; }
+    .copy:hover { border-color: var(--accent); color: var(--accent-2); }
 
-    /* ---------- Action button ---------- */
-    .action {
-      width: 100%;
-      margin-top: 28px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      padding: 16px;
-      font-family: var(--mono);
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      letter-spacing: 0.5px;
-      transition: filter 0.2s ease, transform 0.1s ease;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
+    /* Actions */
+    .actions { display: flex; gap: 12px; margin-top: 28px; }
+    .btn {
+      flex: 1; font-family: var(--mono); font-weight: 600; font-size: 16px;
+      border: none; border-radius: 14px; padding: 16px; cursor: pointer;
+      letter-spacing: 0.5px; transition: filter 0.2s ease, transform 0.1s ease;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .action:hover { filter: brightness(1.1); }
-    .action:active { transform: scale(0.99); }
-    .action:disabled { opacity: 0.6; cursor: not-allowed; filter: none; }
+    .btn:active { transform: scale(0.99); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-enc { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; }
+    .btn-dec { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .btn-enc:hover:not(:disabled) { filter: brightness(1.1); }
+    .btn-dec:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-2); }
 
-    .spinner {
-      width: 18px; height: 18px;
-      border: 2px solid rgba(255, 255, 255, 0.35);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-
-    /* ---------- Output ---------- */
-    .output { margin-top: 28px; display: none; }
+    /* Output */
+    .output { margin-top: 26px; display: none; }
     .output.show { display: block; animation: fadeUp 0.4s ease; }
-    .output-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
-    }
-    .output-card.ok { border-color: rgba(0, 212, 160, 0.5); }
-    .output-card.err { border-color: rgba(255, 71, 87, 0.5); }
-    .out-head {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 12px;
-    }
-    .out-head .title { font-family: var(--mono); font-size: 13px; letter-spacing: 1px; }
-    .out-head .title.ok { color: var(--success); }
-    .out-head .title.err { color: var(--error); }
+    .out-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .out-card.ok { border-color: rgba(0, 200, 150, 0.5); }
+    .out-card.err { border-color: rgba(255, 71, 87, 0.5); }
+    .out-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .out-head .t { font-family: var(--mono); font-size: 13px; letter-spacing: 1px; }
+    .out-head .t.ok { color: var(--success); } .out-head .t.err { color: var(--error); }
     .out-text {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      font-family: var(--mono);
-      font-size: 13px;
-      word-break: break-all;
-      white-space: pre-wrap;
-      max-height: 240px;
-      overflow-y: auto;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+      font-family: var(--mono); font-size: 13px; word-break: break-all; white-space: pre-wrap;
+      max-height: 240px; overflow-y: auto;
     }
-    .download-btn {
+    .dl {
       display: inline-flex; align-items: center; gap: 10px;
-      background: linear-gradient(135deg, var(--success), #00b88a);
-      color: #04130e; font-weight: 700;
-      border: none; border-radius: 12px; padding: 13px 22px;
-      font-family: var(--mono); font-size: 14px; cursor: pointer;
-      transition: filter 0.2s ease;
+      background: linear-gradient(135deg, var(--success), #00a87e); color: #04130e; font-weight: 700;
+      border: none; border-radius: 12px; padding: 13px 22px; font-family: var(--mono); font-size: 14px; cursor: pointer;
     }
-    .download-btn:hover { filter: brightness(1.08); }
+    .dl:hover { filter: brightness(1.08); }
 
-    .hidden { display: none !important; }
+    footer { text-align: center; margin-top: 44px; color: var(--muted); font-family: var(--mono); font-size: 12px; letter-spacing: 1px; }
 
-    footer {
-      text-align: center; margin-top: 48px; color: var(--muted);
-      font-family: var(--mono); font-size: 12px; letter-spacing: 1px;
-    }
-
-    /* ---------- Animations ---------- */
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    @media (max-width: 620px) {
+    @media (max-width: 600px) {
       .algos { grid-template-columns: repeat(2, 1fr); }
-      .logo .sub { display: none; }
+      .logo .en { display: none; }
     }
   </style>
 </head>
-<body data-lang="ar">
-  <div class="wrap">
-    <!-- ===== Header ===== -->
+<body dir="rtl" data-lang="ar">
+  <div class="container">
+    <!-- Header -->
     <header>
       <div class="logo">
-        <span class="mark">تشفير</span>
-        <span class="sub">Tashfeer</span>
+        <span class="ar">تشفير</span>
+        <span class="sep">|</span>
+        <span class="en">Tashfeer</span>
       </div>
-      <div class="lang-toggle">
-        <button data-set-lang="ar" class="active">ع</button>
-        <button data-set-lang="en">EN</button>
-      </div>
+      <button class="lang-btn" id="lang-btn" onclick="toggleLang()">English</button>
     </header>
 
-    <!-- ===== Tabs ===== -->
-    <div class="tabs">
-      <button class="tab active" data-tab="encrypt">
-        <span data-ar="🔐 تشفير" data-en="🔐 Encrypt">🔐 تشفير</span>
-      </button>
-      <button class="tab" data-tab="decrypt">
-        <span data-ar="🔓 فك التشفير" data-en="🔓 Decrypt">🔓 فك التشفير</span>
-      </button>
-    </div>
-
-    <!-- ===== Algorithms ===== -->
+    <!-- Algorithm cards -->
     <div class="label" data-ar="الخوارزمية" data-en="Algorithm">الخوارزمية</div>
     <div class="algos">
-      <div class="algo-card active" data-algo="AES-256-GCM">
-        <div class="icon">🛡️</div>
-        <div class="name">AES-256</div>
-        <div class="desc" data-ar="معيار عسكري" data-en="Military grade">معيار عسكري</div>
+      <div class="algo active" data-algo="aes" onclick="selectAlgo(this)">
+        <div class="ic">🔒</div><div class="nm">AES-256</div>
+        <div class="ds" data-ar="عسكري" data-en="Military">عسكري</div>
       </div>
-      <div class="algo-card" data-algo="RSA-2048">
-        <div class="icon">🔑</div>
-        <div class="name">RSA-2048</div>
-        <div class="desc" data-ar="مفتاحان" data-en="Asymmetric keys">مفتاحان</div>
+      <div class="algo" data-algo="rsa" onclick="selectAlgo(this)">
+        <div class="ic">🔑</div><div class="nm">RSA-2048</div>
+        <div class="ds" data-ar="مفتاحان" data-en="Asymmetric">مفتاحان</div>
       </div>
-      <div class="algo-card" data-algo="ChaCha20-Poly1305">
-        <div class="icon">⚡</div>
-        <div class="name">ChaCha20</div>
-        <div class="desc" data-ar="محسّن للجوال" data-en="Mobile optimized">محسّن للجوال</div>
+      <div class="algo" data-algo="chacha" onclick="selectAlgo(this)">
+        <div class="ic">⚡</div><div class="nm">ChaCha20</div>
+        <div class="ds" data-ar="للجوال" data-en="Mobile">للجوال</div>
       </div>
-      <div class="algo-card" data-algo="Triple-DES">
-        <div class="icon">🗝️</div>
-        <div class="name">Triple-DES</div>
-        <div class="desc" data-ar="تعليمي" data-en="Legacy / Educational">تعليمي</div>
+      <div class="algo" data-algo="3des" onclick="selectAlgo(this)">
+        <div class="ic">📚</div><div class="nm">Triple-DES</div>
+        <div class="ds" data-ar="تعليمي" data-en="Legacy">تعليمي</div>
       </div>
     </div>
 
-    <!-- ===== Input ===== -->
-    <div class="label" data-ar="المُدخل" data-en="Input">المُدخل</div>
-    <div class="mode-switch">
-      <button class="active" data-mode="text" data-ar="نص" data-en="Text">نص</button>
-      <button data-mode="file" data-ar="ملف" data-en="File">ملف</button>
+    <!-- Mode tabs -->
+    <div class="label" data-ar="نوع المُدخل" data-en="Input type">نوع المُدخل</div>
+    <div class="tabs">
+      <button class="tab active" data-mode="text" onclick="selectMode(this)" data-ar="📝 نص" data-en="📝 Text">📝 نص</button>
+      <button class="tab" data-mode="file" onclick="selectMode(this)" data-ar="📁 ملفات" data-en="📁 Files">📁 ملفات</button>
+      <button class="tab" data-mode="image" onclick="selectMode(this)" data-ar="🖼 صور" data-en="🖼 Images">🖼 صور</button>
+      <button class="tab" data-mode="audio" onclick="selectMode(this)" data-ar="🎵 صوت" data-en="🎵 Audio">🎵 صوت</button>
     </div>
 
-    <div id="text-input" class="field">
-      <textarea id="text-area"
-        data-ar-ph="اكتب النص هنا..." data-en-ph="Enter your text here..."
+    <!-- Text panel -->
+    <div class="panel" id="panel-text">
+      <textarea id="text-input" rows="6"
+        data-ar-ph="اكتب النص هنا..." data-en-ph="Type your text here..."
         placeholder="اكتب النص هنا..."></textarea>
     </div>
 
-    <div id="file-input" class="field hidden">
-      <div class="dropzone" id="dropzone">
-        <div class="dz-icon">📁</div>
-        <div class="dz-text" data-ar="اسحب ملفاً هنا أو اضغط للاختيار"
-          data-en="Drag a file here or click to browse">اسحب ملفاً هنا أو اضغط للاختيار</div>
-        <div class="dz-file" id="dz-file"></div>
+    <!-- File panel -->
+    <div class="panel hidden" id="panel-file">
+      <div class="dropzone" id="file-drop">
+        <div class="dz-ic">📁</div>
+        <p data-ar="اسحب أي ملف هنا أو انقر للاختيار" data-en="Drag any file here or click to browse">اسحب أي ملف هنا أو انقر للاختيار</p>
+        <div class="fname" id="file-name"></div>
+        <input type="file" accept="*/*" class="hidden" />
       </div>
-      <input type="file" id="file-field" class="hidden" />
     </div>
 
-    <!-- ===== Key section ===== -->
+    <!-- Image panel -->
+    <div class="panel hidden" id="panel-image">
+      <div class="dropzone" id="image-drop">
+        <div class="dz-ic">🖼</div>
+        <p data-ar="اسحب صورة هنا أو انقر للاختيار" data-en="Drop image here or click to browse">اسحب صورة هنا أو انقر للاختيار</p>
+        <div class="fname" id="image-name"></div>
+        <input type="file" accept="image/*" class="hidden" />
+        <img id="preview" alt="preview" />
+      </div>
+    </div>
+
+    <!-- Audio panel -->
+    <div class="panel hidden" id="panel-audio">
+      <div class="dropzone" id="audio-drop">
+        <div class="dz-ic">🎵</div>
+        <p data-ar="اسحب ملفاً صوتياً هنا أو انقر للاختيار" data-en="Drop audio file here or click to browse">اسحب ملفاً صوتياً هنا أو انقر للاختيار</p>
+        <div class="fname" id="audio-name"></div>
+        <input type="file" accept="audio/*" class="hidden" />
+        <audio id="audio-preview" controls></audio>
+      </div>
+    </div>
+
+    <!-- Key section -->
     <div class="label" data-ar="المفتاح" data-en="Key">المفتاح</div>
 
-    <!-- Password-based algorithms -->
     <div id="password-section">
-      <div class="field">
-        <input type="password" id="password"
-          data-ar-ph="كلمة المرور" data-en-ph="Password" placeholder="كلمة المرور" />
-      </div>
-      <div class="field" id="confirm-field">
-        <input type="password" id="confirm-password"
-          data-ar-ph="تأكيد كلمة المرور" data-en-ph="Confirm password"
-          placeholder="تأكيد كلمة المرور" />
-      </div>
+      <input type="password" id="password"
+        data-ar-ph="كلمة المرور" data-en-ph="Password" placeholder="كلمة المرور" />
     </div>
 
-    <!-- RSA -->
     <div id="rsa-section" class="hidden">
-      <div class="field" id="rsa-public-field">
-        <textarea id="rsa-public"
-          data-ar-ph="ألصق المفتاح العام (PEM) هنا..."
-          data-en-ph="Paste public key (PEM) here..."
-          placeholder="ألصق المفتاح العام (PEM) هنا..."></textarea>
-        <div class="key-note info">
-          <span>ℹ️</span>
-          <span data-ar="شارك مفتاحك العام لاستقبال رسائل مشفّرة."
-            data-en="Share your public key to receive encrypted messages.">
-            شارك مفتاحك العام لاستقبال رسائل مشفّرة.</span>
-        </div>
+      <div class="rsa-key-block">
+        <span class="kl" data-ar="المفتاح العام (للتشفير)" data-en="Public key (encrypt)">المفتاح العام (للتشفير)</span>
+        <textarea id="public-key"
+          data-ar-ph="ألصق المفتاح العام (PEM)..." data-en-ph="Paste public key (PEM)..."
+          placeholder="ألصق المفتاح العام (PEM)..."></textarea>
+        <div class="note info" data-ar="شارك مفتاحك العام لاستقبال رسائل مشفّرة."
+          data-en="Share your public key to receive encrypted messages.">شارك مفتاحك العام لاستقبال رسائل مشفّرة.</div>
       </div>
-      <div class="field hidden" id="rsa-private-field">
-        <textarea id="rsa-private"
-          data-ar-ph="ألصق المفتاح الخاص (PEM) هنا..."
-          data-en-ph="Paste private key (PEM) here..."
-          placeholder="ألصق المفتاح الخاص (PEM) هنا..."></textarea>
-        <div class="key-note warn">
-          <span>⚠️</span>
-          <span data-ar="لا تشارك مفتاحك الخاص مع أحد أبداً."
-            data-en="Never share your private key.">لا تشارك مفتاحك الخاص مع أحد أبداً.</span>
-        </div>
+      <div class="rsa-key-block">
+        <span class="kl" data-ar="المفتاح الخاص (لفك التشفير)" data-en="Private key (decrypt)">المفتاح الخاص (لفك التشفير)</span>
+        <textarea id="private-key"
+          data-ar-ph="ألصق المفتاح الخاص (PEM)..." data-en-ph="Paste private key (PEM)..."
+          placeholder="ألصق المفتاح الخاص (PEM)..."></textarea>
+        <div class="note warn" data-ar="لا تشارك مفتاحك الخاص أبداً."
+          data-en="Never share your private key.">لا تشارك مفتاحك الخاص أبداً.</div>
       </div>
 
-      <button class="btn btn-secondary" id="gen-keys"
-        data-ar="🔑 توليد زوج مفاتيح" data-en="🔑 Generate Key Pair">🔑 توليد زوج مفاتيح</button>
+      <button class="btn-ghost" id="generate-keys" onclick="generateKeys()"
+        data-ar="🔑 توليد مفاتيح RSA" data-en="🔑 Generate RSA Keys">🔑 توليد مفاتيح RSA</button>
 
-      <div class="keypair" id="keypair">
+      <div class="gen-keys" id="gen-keys">
         <div class="keybox">
-          <div class="kb-head">
+          <div class="kh">
             <span data-ar="المفتاح العام" data-en="Public Key">المفتاح العام</span>
-            <button class="copy-btn" data-copy="gen-public"
-              data-ar="نسخ" data-en="Copy">نسخ</button>
+            <button class="copy" onclick="copyFrom('gen-public', this)" data-ar="نسخ" data-en="Copy">نسخ</button>
           </div>
           <textarea id="gen-public" readonly></textarea>
         </div>
         <div class="keybox">
-          <div class="kb-head">
+          <div class="kh">
             <span data-ar="المفتاح الخاص" data-en="Private Key">المفتاح الخاص</span>
-            <button class="copy-btn" data-copy="gen-private"
-              data-ar="نسخ" data-en="Copy">نسخ</button>
+            <button class="copy" onclick="copyFrom('gen-private', this)" data-ar="نسخ" data-en="Copy">نسخ</button>
           </div>
           <textarea id="gen-private" readonly></textarea>
         </div>
       </div>
     </div>
 
-    <!-- ===== Action ===== -->
-    <button class="action" id="action-btn">
-      <span class="spinner hidden" id="spinner"></span>
-      <span id="action-label" data-ar="🔐 تشفير" data-en="🔐 Encrypt">🔐 تشفير</span>
-    </button>
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-enc" id="encrypt-btn" onclick="doAction('encrypt')"
+        data-ar="🔐 تشفير" data-en="🔐 Encrypt">🔐 تشفير</button>
+      <button class="btn btn-dec" id="decrypt-btn" onclick="doAction('decrypt')"
+        data-ar="🔓 فك التشفير" data-en="🔓 Decrypt">🔓 فك التشفير</button>
+    </div>
 
-    <!-- ===== Output ===== -->
+    <!-- Output -->
     <div class="output" id="output">
-      <div class="output-card" id="output-card">
+      <div class="out-card" id="out-card">
         <div class="out-head">
-          <span class="title" id="out-title"></span>
-          <button class="copy-btn hidden" id="out-copy"
-            data-ar="نسخ" data-en="Copy">نسخ</button>
+          <span class="t" id="out-title"></span>
+          <button class="copy hidden" id="out-copy" onclick="copyOutput(this)" data-ar="نسخ" data-en="Copy">نسخ</button>
         </div>
         <div class="out-text hidden" id="out-text"></div>
-        <button class="download-btn hidden" id="out-download">
-          <span>⬇</span>
-          <span id="download-label"></span>
-        </button>
+        <button class="dl hidden" id="out-dl"><span>⬇</span><span id="dl-name"></span></button>
       </div>
     </div>
 
@@ -506,148 +356,92 @@
   </div>
 
   <script>
-    // ===================== State =====================
-    const state = {
-      lang: "ar",
-      tab: "encrypt",
-      algo: "AES-256-GCM",
-      mode: "text",
-      file: null,
-    };
-
-    const RSA = "RSA-2048";
     const $ = (id) => document.getElementById(id);
+    const state = { lang: "ar", algo: "aes", mode: "text" };
 
-    // ===================== Language =====================
-    function applyLanguage() {
+    // ---------- Language ----------
+    function applyLang() {
       const lang = state.lang;
       document.body.setAttribute("data-lang", lang);
+      document.body.dir = lang === "ar" ? "rtl" : "ltr";
       document.documentElement.lang = lang;
-      document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-
       document.querySelectorAll("[data-ar]").forEach((el) => {
-        const val = el.getAttribute("data-" + lang);
-        if (val !== null) el.textContent = val;
+        const v = el.getAttribute("data-" + lang);
+        if (v !== null) el.textContent = v;
       });
       document.querySelectorAll("[data-ar-ph]").forEach((el) => {
-        const val = el.getAttribute("data-" + lang + "-ph");
-        if (val !== null) el.setAttribute("placeholder", val);
+        const v = el.getAttribute("data-" + lang + "-ph");
+        if (v !== null) el.setAttribute("placeholder", v);
       });
-
-      document.querySelectorAll("[data-set-lang]").forEach((b) =>
-        b.classList.toggle("active", b.getAttribute("data-set-lang") === lang)
-      );
+      $("lang-btn").textContent = lang === "ar" ? "English" : "عربي";
+    }
+    function toggleLang() {
+      state.lang = state.lang === "ar" ? "en" : "ar";
+      applyLang();
     }
 
-    document.querySelectorAll("[data-set-lang]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        state.lang = btn.getAttribute("data-set-lang");
-        applyLanguage();
-      });
-    });
-
-    // ===================== Tabs =====================
-    document.querySelectorAll(".tab").forEach((tab) => {
-      tab.addEventListener("click", () => {
-        state.tab = tab.getAttribute("data-tab");
-        document.querySelectorAll(".tab").forEach((t) =>
-          t.classList.toggle("active", t === tab)
-        );
-        updateActionLabel();
-        updateKeySection();
-        hideOutput();
-      });
-    });
-
-    function updateActionLabel() {
-      const label = $("action-label");
-      if (state.tab === "encrypt") {
-        label.setAttribute("data-ar", "🔐 تشفير");
-        label.setAttribute("data-en", "🔐 Encrypt");
-      } else {
-        label.setAttribute("data-ar", "🔓 فك التشفير");
-        label.setAttribute("data-en", "🔓 Decrypt");
-      }
-      label.textContent = label.getAttribute("data-" + state.lang);
-    }
-
-    // ===================== Algorithm selection =====================
-    document.querySelectorAll(".algo-card").forEach((card) => {
-      card.addEventListener("click", () => {
-        state.algo = card.getAttribute("data-algo");
-        document.querySelectorAll(".algo-card").forEach((c) =>
-          c.classList.toggle("active", c === card)
-        );
-        updateKeySection();
-        hideOutput();
-      });
-    });
-
-    function updateKeySection() {
-      const isRSA = state.algo === RSA;
-      const isEncrypt = state.tab === "encrypt";
-
+    // ---------- Algorithm ----------
+    function selectAlgo(el) {
+      state.algo = el.getAttribute("data-algo");
+      document.querySelectorAll(".algo").forEach((c) => c.classList.toggle("active", c === el));
+      const isRSA = state.algo === "rsa";
       $("password-section").classList.toggle("hidden", isRSA);
       $("rsa-section").classList.toggle("hidden", !isRSA);
-
-      // Confirm password only when encrypting with a password algorithm.
-      $("confirm-field").classList.toggle("hidden", isRSA || !isEncrypt);
-
-      // RSA: public key for encrypt, private key for decrypt.
-      $("rsa-public-field").classList.toggle("hidden", !isEncrypt);
-      $("rsa-private-field").classList.toggle("hidden", isEncrypt);
+      hideOutput();
     }
 
-    // ===================== Input mode =====================
-    document.querySelectorAll(".mode-switch button").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        state.mode = btn.getAttribute("data-mode");
-        document.querySelectorAll(".mode-switch button").forEach((b) =>
-          b.classList.toggle("active", b === btn)
-        );
-        $("text-input").classList.toggle("hidden", state.mode !== "text");
-        $("file-input").classList.toggle("hidden", state.mode !== "file");
-        hideOutput();
+    // ---------- Mode ----------
+    function selectMode(el) {
+      state.mode = el.getAttribute("data-mode");
+      document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t === el));
+      ["text", "file", "image", "audio"].forEach((m) =>
+        $("panel-" + m).classList.toggle("hidden", m !== state.mode)
+      );
+      hideOutput();
+    }
+
+    // ---------- Dropzones (file / image / audio) ----------
+    function setupDrop(mode) {
+      const drop = $(mode + "-drop");
+      const input = drop.querySelector('input[type="file"]');
+      drop.addEventListener("click", () => input.click());
+      input.addEventListener("change", () => input.files[0] && onFile(mode, input.files[0]));
+      ["dragenter", "dragover"].forEach((ev) =>
+        drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("dragover"); })
+      );
+      ["dragleave", "drop"].forEach((ev) =>
+        drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("dragover"); })
+      );
+      drop.addEventListener("drop", (e) => {
+        if (e.dataTransfer.files[0]) {
+          input.files = e.dataTransfer.files;
+          onFile(mode, e.dataTransfer.files[0]);
+        }
       });
-    });
-
-    // ===================== File dropzone =====================
-    const dropzone = $("dropzone");
-    const fileField = $("file-field");
-
-    dropzone.addEventListener("click", () => fileField.click());
-    fileField.addEventListener("change", () => {
-      if (fileField.files.length) setFile(fileField.files[0]);
-    });
-    ["dragenter", "dragover"].forEach((ev) =>
-      dropzone.addEventListener(ev, (e) => {
-        e.preventDefault();
-        dropzone.classList.add("dragover");
-      })
-    );
-    ["dragleave", "drop"].forEach((ev) =>
-      dropzone.addEventListener(ev, (e) => {
-        e.preventDefault();
-        dropzone.classList.remove("dragover");
-      })
-    );
-    dropzone.addEventListener("drop", (e) => {
-      if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
-    });
-
-    function setFile(file) {
-      state.file = file;
+    }
+    function onFile(mode, file) {
       const kb = file.size < 1024 ? file.size + " B"
         : file.size < 1048576 ? (file.size / 1024).toFixed(1) + " KB"
         : (file.size / 1048576).toFixed(1) + " MB";
-      $("dz-file").textContent = "✓ " + file.name + "  ·  " + kb;
+      $(mode + "-name").textContent = "✓ " + file.name + "  ·  " + kb;
+      if (mode === "image") {
+        const img = $("preview");
+        img.src = URL.createObjectURL(file);
+        img.style.display = "block";
+      }
+      if (mode === "audio") {
+        const au = $("audio-preview");
+        au.src = URL.createObjectURL(file);
+        au.style.display = "block";
+      }
     }
+    ["file", "image", "audio"].forEach(setupDrop);
 
-    // ===================== Generate RSA keys =====================
-    $("gen-keys").addEventListener("click", async () => {
-      const btn = $("gen-keys");
+    // ---------- RSA key generation ----------
+    async function generateKeys() {
+      const btn = $("generate-keys");
       btn.disabled = true;
-      const original = btn.textContent;
+      const prev = btn.textContent;
       btn.textContent = state.lang === "ar" ? "...جاري التوليد" : "Generating...";
       try {
         const res = await fetch("/generate-rsa-keys", { method: "POST" });
@@ -655,147 +449,102 @@
         if (data.success) {
           $("gen-public").value = data.public_key;
           $("gen-private").value = data.private_key;
-          $("keypair").classList.add("show");
-          // Pre-fill the relevant key field for convenience.
-          $("rsa-public").value = data.public_key;
-          $("rsa-private").value = data.private_key;
+          $("public-key").value = data.public_key;
+          $("private-key").value = data.private_key;
+          $("gen-keys").classList.add("show");
         } else {
-          alert(data.error || "Key generation failed");
+          flashError(data.error || "Key generation failed");
         }
       } catch (err) {
-        alert("Network error: " + err.message);
+        flashError("Connection error: " + err.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = original;
+        btn.textContent = prev;
       }
-    });
+    }
 
-    // ===================== Copy buttons =====================
-    document.querySelectorAll("[data-copy]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const el = $(btn.getAttribute("data-copy"));
-        copyText(el.value, btn);
-      });
-    });
-    $("out-copy").addEventListener("click", () => {
-      copyText($("out-text").textContent, $("out-copy"));
-    });
-
+    // ---------- Copy helpers ----------
+    function copyFrom(id, btn) { copyText($(id).value, btn); }
+    function copyOutput(btn) { copyText($("out-text").textContent, btn); }
     function copyText(text, btn) {
       navigator.clipboard.writeText(text).then(() => {
         const prev = btn.textContent;
         btn.textContent = state.lang === "ar" ? "✓ تم" : "✓ Copied";
-        setTimeout(() => (btn.textContent = prev), 1400);
+        setTimeout(() => (btn.textContent = prev), 1300);
       });
     }
 
-    // ===================== Output helpers =====================
+    // ---------- Output ----------
     function hideOutput() { $("output").classList.remove("show"); }
-
-    function showText(title, text, isError) {
-      const card = $("output-card");
-      card.className = "output-card " + (isError ? "err" : "ok");
-      const t = $("out-title");
-      t.className = "title " + (isError ? "err" : "ok");
-      t.textContent = title;
-      $("out-text").classList.remove("hidden");
-      $("out-text").textContent = text;
-      $("out-copy").classList.toggle("hidden", isError);
-      $("out-download").classList.add("hidden");
+    function showText(title, text, isErr) {
+      const card = $("out-card");
+      card.className = "out-card " + (isErr ? "err" : "ok");
+      const t = $("out-title"); t.className = "t " + (isErr ? "err" : "ok"); t.textContent = title;
+      $("out-text").classList.remove("hidden"); $("out-text").textContent = text;
+      $("out-copy").classList.toggle("hidden", isErr);
+      $("out-dl").classList.add("hidden");
       $("output").classList.add("show");
       $("output").scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-
     function showDownload(title, blob, filename) {
-      const card = $("output-card");
-      card.className = "output-card ok";
-      const t = $("out-title");
-      t.className = "title ok";
-      t.textContent = title;
-      $("out-text").classList.add("hidden");
-      $("out-copy").classList.add("hidden");
-
-      const dl = $("out-download");
-      dl.classList.remove("hidden");
-      $("download-label").textContent = filename;
+      const card = $("out-card"); card.className = "out-card ok";
+      const t = $("out-title"); t.className = "t ok"; t.textContent = title;
+      $("out-text").classList.add("hidden"); $("out-copy").classList.add("hidden");
+      const dl = $("out-dl"); dl.classList.remove("hidden"); $("dl-name").textContent = filename;
       dl.onclick = () => {
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        a.click();
+        const a = document.createElement("a"); a.href = url; a.download = filename; a.click();
         URL.revokeObjectURL(url);
       };
       $("output").classList.add("show");
       $("output").scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
+    function flashError(msg) { showText(state.lang === "ar" ? "✕ خطأ" : "✕ Error", msg, true); }
 
-    // ===================== Submit =====================
-    $("action-btn").addEventListener("click", submit);
+    // ---------- Submit ----------
+    async function doAction(action) {
+      const isEnc = action === "encrypt";
+      const btn = $(action + "-btn");
 
-    function setLoading(on) {
-      $("action-btn").disabled = on;
-      $("spinner").classList.toggle("hidden", !on);
-      const label = $("action-label");
-      if (on) {
-        label.textContent = state.lang === "ar" ? "...جاري المعالجة" : "Processing...";
-      } else {
-        updateActionLabel();
-      }
-      // Disable inputs while processing.
-      document.querySelectorAll("textarea, input").forEach((el) => (el.disabled = on));
-    }
-
-    async function submit() {
-      const isEncrypt = state.tab === "encrypt";
-      const isRSA = state.algo === RSA;
-
-      // ---- Client-side validation ----
       const fd = new FormData();
       fd.append("algorithm", state.algo);
       fd.append("mode", state.mode);
 
       if (state.mode === "text") {
-        const text = $("text-area").value;
+        const text = $("text-input").value;
         if (!text) return flashError(state.lang === "ar" ? "أدخل نصاً أولاً." : "Enter some text first.");
-        fd.append("text", text);
+        fd.append("text_input", text);
       } else {
-        if (!state.file) return flashError(state.lang === "ar" ? "اختر ملفاً أولاً." : "Choose a file first.");
-        fd.append("file", state.file);
+        const input = $(state.mode + "-drop").querySelector('input[type="file"]');
+        if (!input.files[0]) return flashError(state.lang === "ar" ? "اختر ملفاً أولاً." : "Choose a file first.");
+        fd.append("file_input", input.files[0]);
       }
 
-      if (isRSA) {
-        const key = isEncrypt ? $("rsa-public").value.trim() : $("rsa-private").value.trim();
-        if (!key) return flashError(
-          isEncrypt
-            ? (state.lang === "ar" ? "ألصق المفتاح العام." : "Paste the public key.")
-            : (state.lang === "ar" ? "ألصق المفتاح الخاص." : "Paste the private key.")
-        );
-        fd.append(isEncrypt ? "public_key" : "private_key", key);
+      if (state.algo === "rsa") {
+        const key = isEnc ? $("public-key").value.trim() : $("private-key").value.trim();
+        if (!key) return flashError(isEnc
+          ? (state.lang === "ar" ? "ألصق المفتاح العام." : "Paste the public key.")
+          : (state.lang === "ar" ? "ألصق المفتاح الخاص." : "Paste the private key."));
+        fd.append(isEnc ? "public_key" : "private_key", key);
       } else {
         const pw = $("password").value;
         if (!pw) return flashError(state.lang === "ar" ? "أدخل كلمة المرور." : "Enter a password.");
         fd.append("password", pw);
-        if (isEncrypt) {
-          const confirm = $("confirm-password").value;
-          if (confirm !== pw) return flashError(
-            state.lang === "ar" ? "كلمتا المرور غير متطابقتين." : "Passwords do not match."
-          );
-          fd.append("confirm_password", confirm);
-        }
       }
 
-      // ---- Send ----
-      setLoading(true);
-      const endpoint = isEncrypt ? "/encrypt" : "/decrypt";
-      try {
-        const res = await fetch(endpoint, { method: "POST", body: fd });
-        const ctype = res.headers.get("Content-Type") || "";
+      const labelAr = isEnc ? "...جاري التشفير" : "...جاري فك التشفير";
+      const labelEn = isEnc ? "Encrypting..." : "Decrypting...";
+      btn.disabled = true;
+      const original = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span>' + (state.lang === "ar" ? labelAr : labelEn);
 
+      try {
+        const res = await fetch("/" + action, { method: "POST", body: fd });
+        const ctype = res.headers.get("Content-Type") || "";
         if (ctype.includes("application/json")) {
           const data = await res.json();
           if (data.success) {
-            const title = isEncrypt
+            const title = isEnc
               ? (state.lang === "ar" ? "✓ تم التشفير" : "✓ Encrypted")
               : (state.lang === "ar" ? "✓ تم فك التشفير" : "✓ Decrypted");
             showText(title, data.result, false);
@@ -803,36 +552,30 @@
             flashError(data.error || "Operation failed.");
           }
         } else {
-          // File response.
           const blob = await res.blob();
           const filename = parseFilename(res.headers.get("Content-Disposition"))
-            || (isEncrypt ? "output.tashfeer" : "decrypted_output");
-          const title = isEncrypt
+            || (isEnc ? "output.tashfeer" : "decrypted_output");
+          const title = isEnc
             ? (state.lang === "ar" ? "✓ تم تشفير الملف" : "✓ File encrypted")
             : (state.lang === "ar" ? "✓ تم فك تشفير الملف" : "✓ File decrypted");
           showDownload(title, blob, filename);
         }
       } catch (err) {
-        flashError("Network error: " + err.message);
+        flashError("Connection error: " + err.message);
       } finally {
-        setLoading(false);
+        btn.disabled = false;
+        btn.innerHTML = original;
       }
     }
 
     function parseFilename(disposition) {
       if (!disposition) return null;
-      const match = /filename\*?=(?:UTF-8'')?["']?([^"';]+)/i.exec(disposition);
-      return match ? decodeURIComponent(match[1]) : null;
+      const m = /filename\*?=(?:UTF-8'')?["']?([^"';]+)/i.exec(disposition);
+      return m ? decodeURIComponent(m[1]) : null;
     }
 
-    function flashError(msg) {
-      const title = state.lang === "ar" ? "✕ خطأ" : "✕ Error";
-      showText(title, msg, true);
-    }
-
-    // ===================== Init =====================
-    applyLanguage();
-    updateKeySection();
+    // ---------- Init ----------
+    applyLang();
   </script>
 </body>
 </html>
