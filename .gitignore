@@ -7,3 +7,6 @@ venv/
 # Tashfeer runtime folders (auto-created)
 uploads/
 outputs/
+
+# Node / presentation
+node_modules/
