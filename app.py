@@ -1,16 +1,18 @@
 """
-Tashfeer (تشفير) — a clean, zero-configuration encryption tool.
+Tashfeer (تشفير) — a local, zero-configuration encryption web app.
 
-Run it with a single command:
-
+Run:
+    pip install flask cryptography
     python app.py
+Then open http://localhost:5000
 
-…then open http://localhost:5000 in your browser.
+Seven algorithms, all server-side via the `cryptography` library:
+AES-256-GCM, RSA-2048 (hybrid), ChaCha20-Poly1305, Triple-DES,
+Camellia-256, AES-256-CBC+HMAC (encrypt-then-MAC), and Fernet.
 
-Everything (Flask server + all cryptography) lives in this one file. The four
-supported algorithms are AES-256-GCM, RSA-2048, ChaCha20-Poly1305 and
-Triple-DES. On first run the required packages are installed automatically so
-the app works immediately on a fresh machine.
+All password-based algorithms stretch the user's password to the exact key
+length they need with PBKDF2-HMAC-SHA256 (100,000 iterations, random 16-byte
+salt per operation), so even a 3-character password works.
 """
 
 import os
@@ -21,15 +23,10 @@ import subprocess
 
 
 # --------------------------------------------------------------------------- #
-# First-run convenience: auto-install dependencies
+# First-run convenience: auto-install dependencies (no-op if already present)
 # --------------------------------------------------------------------------- #
 def ensure_dependencies():
-    """Install Flask + cryptography on first run (fast no-op if present).
-
-    Lets the app start with one command (or VS Code's ▶ Run button) on a fresh
-    machine that only has Python installed — no manual `pip install` needed.
-    """
-    required = {"flask": "flask==3.0.0", "cryptography": "cryptography==42.0.0"}
+    required = {"flask": "flask", "cryptography": "cryptography"}
     missing = [spec for mod, spec in required.items()
                if importlib.util.find_spec(mod) is None]
     if not missing:
@@ -41,7 +38,7 @@ def ensure_dependencies():
     except Exception as exc:  # noqa: BLE001
         sys.exit(
             "\n[Tashfeer] Could not auto-install dependencies.\n"
-            "Please run once:  pip install -r requirements.txt\n"
+            "Please run once:  pip install flask cryptography\n"
             f"Details: {exc}\n"
         )
 
@@ -52,11 +49,17 @@ from flask import Flask, request, jsonify, render_template, send_file
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM, ChaCha20Poly1305
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import hashes, serialization
+try:
+    # Newer cryptography moved these "legacy" ciphers to a decrepit module.
+    from cryptography.hazmat.decrepit.ciphers.algorithms import TripleDES, Camellia
+except ImportError:  # older versions still expose them on `algorithms`
+    from cryptography.hazmat.primitives.ciphers.algorithms import TripleDES, Camellia
+from cryptography.hazmat.primitives import hashes, hmac, serialization
 from cryptography.hazmat.primitives import padding as sym_padding
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding as rsa_padding
+from cryptography.fernet import Fernet
 
 
 # --------------------------------------------------------------------------- #
@@ -65,95 +68,149 @@ from cryptography.hazmat.primitives.asymmetric import padding as rsa_padding
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
 OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
-# Create folders at import time so routes work under any runner (incl. tests).
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 app = Flask(__name__)
 
-PBKDF2_ITERATIONS = 100_000
+ITERATIONS = 100_000
 
 
-def _kdf(salt: bytes, length: int) -> PBKDF2HMAC:
+def derive(password: str, salt: bytes, length: int) -> bytes:
+    """Stretch a password to `length` bytes with PBKDF2-HMAC-SHA256."""
     return PBKDF2HMAC(
-        algorithm=hashes.SHA256(), length=length, salt=salt,
-        iterations=PBKDF2_ITERATIONS,
-    )
+        algorithm=hashes.SHA256(), length=length, salt=salt, iterations=ITERATIONS
+    ).derive(password.encode("utf-8"))
+
+
+b64e = base64.b64encode
+b64d = base64.b64decode
 
 
 # --------------------------------------------------------------------------- #
-# AES-256-GCM
+# 1) AES-256-GCM     out: salt[16] + nonce[12] + ct(+tag)
 # --------------------------------------------------------------------------- #
-def aes_encrypt(data: bytes, password: str) -> bytes:
-    salt = os.urandom(16)
-    key = _kdf(salt, 32).derive(password.encode())
-    nonce = os.urandom(12)
-    ct = AESGCM(key).encrypt(nonce, data, None)
-    return base64.b64encode(salt + nonce + ct)
+def aes_encrypt(data, pw):
+    salt, nonce = os.urandom(16), os.urandom(12)
+    ct = AESGCM(derive(pw, salt, 32)).encrypt(nonce, data, None)
+    return b64e(salt + nonce + ct)
 
 
-def aes_decrypt(token: bytes, password: str) -> bytes:
-    raw = base64.b64decode(token)
-    salt, nonce, ct = raw[:16], raw[16:28], raw[28:]
-    key = _kdf(salt, 32).derive(password.encode())
-    return AESGCM(key).decrypt(nonce, ct, None)
+def aes_decrypt(token, pw):
+    raw = b64d(token); salt, nonce, ct = raw[:16], raw[16:28], raw[28:]
+    return AESGCM(derive(pw, salt, 32)).decrypt(nonce, ct, None)
 
 
 # --------------------------------------------------------------------------- #
-# ChaCha20-Poly1305
+# 2) ChaCha20-Poly1305   out: salt[16] + nonce[12] + ct(+tag)
 # --------------------------------------------------------------------------- #
-def chacha_encrypt(data: bytes, password: str) -> bytes:
-    salt = os.urandom(16)
-    key = _kdf(salt, 32).derive(password.encode())
-    nonce = os.urandom(12)
-    ct = ChaCha20Poly1305(key).encrypt(nonce, data, None)
-    return base64.b64encode(salt + nonce + ct)
+def chacha_encrypt(data, pw):
+    salt, nonce = os.urandom(16), os.urandom(12)
+    ct = ChaCha20Poly1305(derive(pw, salt, 32)).encrypt(nonce, data, None)
+    return b64e(salt + nonce + ct)
 
 
-def chacha_decrypt(token: bytes, password: str) -> bytes:
-    raw = base64.b64decode(token)
-    salt, nonce, ct = raw[:16], raw[16:28], raw[28:]
-    key = _kdf(salt, 32).derive(password.encode())
-    return ChaCha20Poly1305(key).decrypt(nonce, ct, None)
+def chacha_decrypt(token, pw):
+    raw = b64d(token); salt, nonce, ct = raw[:16], raw[16:28], raw[28:]
+    return ChaCha20Poly1305(derive(pw, salt, 32)).decrypt(nonce, ct, None)
 
 
 # --------------------------------------------------------------------------- #
-# Triple-DES (CBC + PKCS7), 24-byte key
+# 3) Triple-DES (CBC, IV[8], PKCS7/64, 24-byte key)   out: salt[16]+iv[8]+ct
 # --------------------------------------------------------------------------- #
-def tdes_encrypt(data: bytes, password: str) -> bytes:
-    salt = os.urandom(16)
-    key = _kdf(salt, 24).derive(password.encode())  # exactly 24 bytes
-    iv = os.urandom(8)
+def tdes_encrypt(data, pw):
+    salt, iv = os.urandom(16), os.urandom(8)
+    key = derive(pw, salt, 24)
     padder = sym_padding.PKCS7(64).padder()
     padded = padder.update(data) + padder.finalize()
-    enc = Cipher(algorithms.TripleDES(key), modes.CBC(iv)).encryptor()
-    ct = enc.update(padded) + enc.finalize()
-    return base64.b64encode(salt + iv + ct)
+    enc = Cipher(TripleDES(key), modes.CBC(iv)).encryptor()
+    return b64e(salt + iv + enc.update(padded) + enc.finalize())
 
 
-def tdes_decrypt(token: bytes, password: str) -> bytes:
-    raw = base64.b64decode(token)
-    salt, iv, ct = raw[:16], raw[16:24], raw[24:]
-    key = _kdf(salt, 24).derive(password.encode())
-    dec = Cipher(algorithms.TripleDES(key), modes.CBC(iv)).decryptor()
+def tdes_decrypt(token, pw):
+    raw = b64d(token); salt, iv, ct = raw[:16], raw[16:24], raw[24:]
+    dec = Cipher(TripleDES(derive(pw, salt, 24)), modes.CBC(iv)).decryptor()
     padded = dec.update(ct) + dec.finalize()
-    unpadder = sym_padding.PKCS7(64).unpadder()
-    return unpadder.update(padded) + unpadder.finalize()
+    unp = sym_padding.PKCS7(64).unpadder()
+    return unp.update(padded) + unp.finalize()
 
 
 # --------------------------------------------------------------------------- #
-# RSA-2048 — hybrid (RSA-OAEP wraps a random AES-256-GCM key) for any size
+# 4) Camellia-256 (CBC, IV[16], PKCS7/128, 32-byte key)  out: salt[16]+iv[16]+ct
+# --------------------------------------------------------------------------- #
+def camellia_encrypt(data, pw):
+    salt, iv = os.urandom(16), os.urandom(16)
+    key = derive(pw, salt, 32)
+    padder = sym_padding.PKCS7(128).padder()
+    padded = padder.update(data) + padder.finalize()
+    enc = Cipher(Camellia(key), modes.CBC(iv)).encryptor()
+    return b64e(salt + iv + enc.update(padded) + enc.finalize())
+
+
+def camellia_decrypt(token, pw):
+    raw = b64d(token); salt, iv, ct = raw[:16], raw[16:32], raw[32:]
+    dec = Cipher(Camellia(derive(pw, salt, 32)), modes.CBC(iv)).decryptor()
+    padded = dec.update(ct) + dec.finalize()
+    unp = sym_padding.PKCS7(128).unpadder()
+    return unp.update(padded) + unp.finalize()
+
+
+# --------------------------------------------------------------------------- #
+# 5) AES-256-CBC + HMAC-SHA256 (Encrypt-then-MAC)
+#    keys: 64 bytes -> enc[32] + mac[32]   out: salt[16]+iv[16]+hmac[32]+ct
+# --------------------------------------------------------------------------- #
+def aescbc_encrypt(data, pw):
+    salt, iv = os.urandom(16), os.urandom(16)
+    keys = derive(pw, salt, 64)
+    enc_key, mac_key = keys[:32], keys[32:]
+    padder = sym_padding.PKCS7(128).padder()
+    padded = padder.update(data) + padder.finalize()
+    enc = Cipher(algorithms.AES(enc_key), modes.CBC(iv)).encryptor()
+    ct = enc.update(padded) + enc.finalize()
+    h = hmac.HMAC(mac_key, hashes.SHA256()); h.update(iv + ct)
+    return b64e(salt + iv + h.finalize() + ct)
+
+
+def aescbc_decrypt(token, pw):
+    raw = b64d(token); salt, iv, tag, ct = raw[:16], raw[16:32], raw[32:64], raw[64:]
+    keys = derive(pw, salt, 64)
+    enc_key, mac_key = keys[:32], keys[32:]
+    h = hmac.HMAC(mac_key, hashes.SHA256()); h.update(iv + ct)
+    h.verify(tag)  # raises InvalidSignature on wrong password / tampering
+    dec = Cipher(algorithms.AES(enc_key), modes.CBC(iv)).decryptor()
+    padded = dec.update(ct) + dec.finalize()
+    unp = sym_padding.PKCS7(128).unpadder()
+    return unp.update(padded) + unp.finalize()
+
+
+# --------------------------------------------------------------------------- #
+# 6) Fernet (32-byte key -> urlsafe b64 Fernet key)   out: salt[16] + token
+# --------------------------------------------------------------------------- #
+def fernet_encrypt(data, pw):
+    salt = os.urandom(16)
+    key = base64.urlsafe_b64encode(derive(pw, salt, 32))
+    token = Fernet(key).encrypt(data)
+    return b64e(salt + token)
+
+
+def fernet_decrypt(token, pw):
+    raw = b64d(token); salt, ftoken = raw[:16], raw[16:]
+    key = base64.urlsafe_b64encode(derive(pw, salt, 32))
+    return Fernet(key).decrypt(ftoken)
+
+
+# --------------------------------------------------------------------------- #
+# 7) RSA-2048 — hybrid: AES-256-GCM encrypts data, RSA-OAEP wraps the AES key
+#    out: 2-byte enc_key_len + enc_aes_key + nonce[12] + ct
 # --------------------------------------------------------------------------- #
 def generate_rsa_keys():
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    pub_pem = private_key.public_key().public_bytes(
-        serialization.Encoding.PEM,
-        serialization.PublicFormat.SubjectPublicKeyInfo,
+    priv = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    pub_pem = priv.public_key().public_bytes(
+        serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo
     ).decode()
-    priv_pem = private_key.private_bytes(
-        serialization.Encoding.PEM,
-        serialization.PrivateFormat.TraditionalOpenSSL,
-        serialization.NoEncryption(),
+    priv_pem = priv.private_bytes(
+        serialization.Encoding.PEM, serialization.PrivateFormat.TraditionalOpenSSL,
+        serialization.NoEncryption()
     ).decode()
     return pub_pem, priv_pem
 
@@ -165,54 +222,54 @@ def _oaep():
     )
 
 
-def rsa_encrypt(data: bytes, public_key_pem: str) -> bytes:
-    aes_key = os.urandom(32)
-    nonce = os.urandom(12)
+def rsa_encrypt(data, public_key_pem):
+    aes_key, nonce = os.urandom(32), os.urandom(12)
     ct = AESGCM(aes_key).encrypt(nonce, data, None)
-    pub_key = serialization.load_pem_public_key(public_key_pem.encode())
-    enc_aes_key = pub_key.encrypt(aes_key, _oaep())
-    # Format: [2 bytes enc_key_len][enc_aes_key][nonce(12)][ciphertext]
-    enc_key_len = len(enc_aes_key).to_bytes(2, "big")
-    return base64.b64encode(enc_key_len + enc_aes_key + nonce + ct)
+    pub = serialization.load_pem_public_key(public_key_pem.encode())
+    enc_key = pub.encrypt(aes_key, _oaep())
+    return b64e(len(enc_key).to_bytes(2, "big") + enc_key + nonce + ct)
 
 
-def rsa_decrypt(token: bytes, private_key_pem: str) -> bytes:
-    raw = base64.b64decode(token)
-    enc_key_len = int.from_bytes(raw[:2], "big")
-    enc_aes_key = raw[2:2 + enc_key_len]
-    nonce = raw[2 + enc_key_len:2 + enc_key_len + 12]
-    ct = raw[2 + enc_key_len + 12:]
-    priv_key = serialization.load_pem_private_key(private_key_pem.encode(), password=None)
-    aes_key = priv_key.decrypt(enc_aes_key, _oaep())
+def rsa_decrypt(token, private_key_pem):
+    raw = b64d(token)
+    klen = int.from_bytes(raw[:2], "big")
+    enc_key, nonce, ct = raw[2:2 + klen], raw[2 + klen:2 + klen + 12], raw[2 + klen + 12:]
+    priv = serialization.load_pem_private_key(private_key_pem.encode(), password=None)
+    aes_key = priv.decrypt(enc_key, _oaep())
     return AESGCM(aes_key).decrypt(nonce, ct, None)
 
 
 # --------------------------------------------------------------------------- #
-# Dispatch helpers
+# Dispatch
 # --------------------------------------------------------------------------- #
-ENCRYPTORS = {"aes": aes_encrypt, "chacha": chacha_encrypt, "3des": tdes_encrypt}
-DECRYPTORS = {"aes": aes_decrypt, "chacha": chacha_decrypt, "3des": tdes_decrypt}
+ENCRYPTORS = {
+    "aes": aes_encrypt, "chacha": chacha_encrypt, "3des": tdes_encrypt,
+    "camellia": camellia_encrypt, "aescbc": aescbc_encrypt, "fernet": fernet_encrypt,
+}
+DECRYPTORS = {
+    "aes": aes_decrypt, "chacha": chacha_decrypt, "3des": tdes_decrypt,
+    "camellia": camellia_decrypt, "aescbc": aescbc_decrypt, "fernet": fernet_decrypt,
+}
 
 
 def _read_input():
-    """Return (data: bytes, is_file: bool, filename: str|None) from the form."""
+    """Return (data: bytes, is_file: bool, filename: str|None)."""
     mode = request.form.get("mode", "text")
     if mode == "text":
         text = request.form.get("text_input", "")
         if not text:
             raise ValueError("No text provided")
         return text.encode("utf-8"), False, None
-    # file / image / audio all arrive as a single uploaded file.
     f = request.files.get("file_input")
     if not f or f.filename == "":
         raise ValueError("No file provided")
     return f.read(), True, os.path.basename(f.filename)
 
 
-def _key_material(algorithm: str, for_encrypt: bool) -> str:
+def _key_material(algorithm, for_encrypt):
     if algorithm == "rsa":
         field = "public_key" if for_encrypt else "private_key"
-        value = request.form.get(field, "").strip()
+        value = (request.form.get(field) or "").strip()
         if not value:
             raise ValueError(("Public" if for_encrypt else "Private") + " key required")
         return value
@@ -233,36 +290,54 @@ def index():
 @app.route("/generate-rsa-keys", methods=["POST"])
 def generate_keys_route():
     try:
-        public_key, private_key = generate_rsa_keys()
-        return jsonify({"success": True, "public_key": public_key,
-                        "private_key": private_key})
+        pub, priv = generate_rsa_keys()
+        return jsonify({"success": True, "public_key": pub, "private_key": priv})
     except Exception as e:  # noqa: BLE001
         return jsonify({"success": False, "error": str(e)}), 400
 
 
-@app.route("/encrypt", methods=["POST"])
-def encrypt():
-    try:
-        algorithm = request.form.get("algorithm", "aes")
-        data, is_file, filename = _read_input()
-        key = _key_material(algorithm, for_encrypt=True)
+def _run(operation):
+    for_encrypt = operation == "encrypt"
+    algorithm = (request.form.get("algorithm") or "aes").strip()
+    data, is_file, filename = _read_input()
+    key = _key_material(algorithm, for_encrypt)
 
-        if algorithm == "rsa":
-            result = rsa_encrypt(data, key)
-        elif algorithm in ENCRYPTORS:
-            result = ENCRYPTORS[algorithm](data, key)
-        else:
-            return jsonify({"success": False, "error": "Unknown algorithm"}), 400
+    if algorithm == "rsa":
+        fn = rsa_encrypt if for_encrypt else rsa_decrypt
+    else:
+        table = ENCRYPTORS if for_encrypt else DECRYPTORS
+        if algorithm not in table:
+            raise ValueError("Unknown algorithm")
+        fn = table[algorithm]
 
-        if is_file:
+    result = fn(data, key)  # encrypt -> base64 bytes; decrypt -> raw bytes
+
+    if is_file:
+        if for_encrypt:
             out_name = filename + ".tashfeer"
-            out_path = os.path.join(OUTPUT_DIR, out_name)
-            with open(out_path, "wb") as out_f:
-                out_f.write(result)
-            return send_file(out_path, as_attachment=True, download_name=out_name,
-                             mimetype="application/octet-stream")
-        return jsonify({"success": True, "result": result.decode(), "algorithm": algorithm})
+        elif filename.endswith(".tashfeer"):
+            out_name = filename[: -len(".tashfeer")]
+        else:
+            out_name = "decrypted_" + filename
+        out_path = os.path.join(OUTPUT_DIR, out_name)
+        with open(out_path, "wb") as fh:
+            fh.write(result)
+        return send_file(out_path, as_attachment=True, download_name=out_name,
+                         mimetype="application/octet-stream" if for_encrypt else None)
 
+    if for_encrypt:
+        return jsonify({"success": True, "result": result.decode(), "algorithm": algorithm})
+    try:
+        text = result.decode("utf-8")
+    except UnicodeDecodeError:
+        text = b64e(result).decode()
+    return jsonify({"success": True, "result": text, "algorithm": algorithm})
+
+
+@app.route("/encrypt", methods=["POST"])
+def encrypt_route():
+    try:
+        return _run("encrypt")
     except ValueError as e:
         return jsonify({"success": False, "error": str(e)}), 400
     except Exception as e:  # noqa: BLE001
@@ -270,40 +345,12 @@ def encrypt():
 
 
 @app.route("/decrypt", methods=["POST"])
-def decrypt():
+def decrypt_route():
     try:
-        algorithm = request.form.get("algorithm", "aes")
-        data, is_file, filename = _read_input()
-        key = _key_material(algorithm, for_encrypt=False)
-
-        if algorithm == "rsa":
-            result = rsa_decrypt(data, key)
-        elif algorithm in DECRYPTORS:
-            result = DECRYPTORS[algorithm](data, key)
-        else:
-            return jsonify({"success": False, "error": "Unknown algorithm"}), 400
-
-        if is_file:
-            # Restore the original name by dropping the .tashfeer suffix.
-            if filename.endswith(".tashfeer"):
-                out_name = filename[: -len(".tashfeer")]
-            else:
-                out_name = "decrypted_" + filename
-            out_path = os.path.join(OUTPUT_DIR, out_name)
-            with open(out_path, "wb") as out_f:
-                out_f.write(result)
-            return send_file(out_path, as_attachment=True, download_name=out_name)
-
-        # Text: the decrypted bytes should be valid UTF-8.
-        try:
-            text = result.decode("utf-8")
-        except UnicodeDecodeError:
-            text = base64.b64encode(result).decode()  # binary fallback
-        return jsonify({"success": True, "result": text, "algorithm": algorithm})
-
+        return _run("decrypt")
     except ValueError as e:
         return jsonify({"success": False, "error": str(e)}), 400
-    except Exception:  # noqa: BLE001 — wrong key/password, corrupt data, etc.
+    except Exception:  # noqa: BLE001 — wrong key/password, tampered, corrupt
         return jsonify({"success": False,
                         "error": "Decryption failed — wrong key/password or corrupted data"}), 400
 
@@ -322,13 +369,7 @@ def _open_browser():
 if __name__ == "__main__":
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-    # Auto-open the browser shortly after the server starts (best-effort).
     import threading
     threading.Timer(1.2, _open_browser).start()
-
-    print("=" * 50)
-    print("  Tashfeer — تشفير")
-    print("  Open: http://localhost:5000")
-    print("=" * 50)
+    print("Tashfeer running at http://localhost:5000")
     app.run(debug=False, port=5000)

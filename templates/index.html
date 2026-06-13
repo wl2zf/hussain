@@ -12,560 +12,419 @@
   />
   <style>
     :root {
-      --bg: #0d0d14;
-      --surface: #13131f;
-      --card: #13131f;
-      --border: #252535;
-      --accent: #7c6aff;
-      --accent-2: #9a8cff;
-      --success: #00c896;
-      --error: #ff4757;
-      --text: #dddde8;
-      --muted: #6a6a80;
+      --bg: #0D0D14; --card: #13131F; --surface: #13131F; --border: #252535;
+      --accent: #7C6AFF; --accent-2: #9A8CFF; --green: #00C896; --red: #FF6B6B;
+      --text: #E8E8F0; --muted: #6A6A80;
       --mono: "IBM Plex Mono", monospace;
       --sans: "IBM Plex Sans Arabic", "IBM Plex Mono", sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      min-height: 100vh;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
+      background: var(--bg); color: var(--text); font-family: var(--sans);
+      min-height: 100vh; line-height: 1.6; -webkit-font-smoothing: antialiased;
       background-image:
-        radial-gradient(circle at 12% 8%, rgba(124, 106, 255, 0.10), transparent 42%),
-        radial-gradient(circle at 88% 92%, rgba(0, 200, 150, 0.05), transparent 42%);
+        radial-gradient(circle at 12% 8%, rgba(124,106,255,0.10), transparent 42%),
+        radial-gradient(circle at 88% 92%, rgba(0,200,150,0.05), transparent 42%);
     }
-    .container { max-width: 860px; margin: 0 auto; padding: 30px 18px 70px; }
+    .container { max-width: 900px; margin: 0 auto; padding: 30px 18px 70px; }
 
-    /* Header */
     header {
       display: flex; align-items: center; justify-content: space-between;
-      padding-bottom: 22px; border-bottom: 1px solid var(--border);
-      animation: fadeIn 0.6s ease;
+      padding-bottom: 22px; border-bottom: 1px solid var(--border); animation: fadeIn .6s ease;
     }
     .logo { display: flex; align-items: baseline; gap: 10px; font-family: var(--mono); }
-    .logo .ar {
-      font-size: 28px; font-weight: 700;
+    .logo .ar { font-size: 28px; font-weight: 700;
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-    }
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
     .logo .sep { color: var(--border); font-size: 22px; }
     .logo .en { font-size: 14px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; }
-    .lang-btn {
-      font-family: var(--mono); font-size: 13px; background: var(--surface);
+    .lang-btn { font-family: var(--mono); font-size: 13px; background: var(--surface);
       color: var(--text); border: 1px solid var(--border); border-radius: 10px;
-      padding: 9px 16px; cursor: pointer; transition: all 0.2s ease;
-    }
+      padding: 9px 16px; cursor: pointer; transition: all .2s ease; }
     .lang-btn:hover { border-color: var(--accent); color: var(--accent-2); }
 
-    .label {
-      font-family: var(--mono); font-size: 12px; letter-spacing: 2px;
-      text-transform: uppercase; color: var(--muted); margin: 26px 0 12px;
-    }
+    /* Main mode tabs */
+    .maintabs { display: flex; gap: 10px; margin-top: 24px; }
+    .maintab { flex: 1; background: var(--surface); color: var(--muted);
+      border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+      font-family: var(--mono); font-size: 17px; font-weight: 600; cursor: pointer;
+      transition: all .25s ease; letter-spacing: .5px; }
+    .maintab.active { color: #fff; border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(124,106,255,.18), var(--surface));
+      box-shadow: 0 0 0 1px rgba(124,106,255,.4), 0 0 22px rgba(124,106,255,.25); }
+    .maintab.dec.active { border-color: var(--green);
+      background: linear-gradient(180deg, rgba(0,200,150,.16), var(--surface));
+      box-shadow: 0 0 0 1px rgba(0,200,150,.4), 0 0 22px rgba(0,200,150,.22); }
 
-    /* Algorithm cards */
+    .label { font-family: var(--mono); font-size: 12px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--muted); margin: 26px 0 12px; }
+
     .algos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    .algo {
-      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-      padding: 16px 12px; cursor: pointer; text-align: center;
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-      animation: fadeUp 0.5s ease both;
-    }
-    .algo:nth-child(1){animation-delay:.05s} .algo:nth-child(2){animation-delay:.12s}
-    .algo:nth-child(3){animation-delay:.19s} .algo:nth-child(4){animation-delay:.26s}
+    .algo { background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 14px 12px; cursor: pointer; text-align: center;
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
     .algo:hover { transform: translateY(-2px); border-color: #34344a; }
-    .algo.active {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent), 0 0 22px rgba(124, 106, 255, 0.35);
-      transform: translateY(-2px);
-    }
-    .algo .ic { font-size: 22px; }
-    .algo .nm { font-family: var(--mono); font-weight: 600; font-size: 14px; margin: 8px 0 4px; }
-    .algo .ds { font-size: 12px; color: var(--muted); }
+    .algo.active { border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 0 22px rgba(124,106,255,.35); transform: translateY(-2px); }
+    .algo .ic { font-size: 20px; }
+    .algo .nm { font-family: var(--mono); font-weight: 600; font-size: 13px; margin: 7px 0 3px; }
+    .algo .ds { font-size: 11px; color: var(--muted); }
 
-    /* Mode tabs */
-    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-    .tab {
-      flex: 1; min-width: 90px; background: var(--surface); color: var(--muted);
+    .subtabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .subtab { flex: 1; min-width: 90px; background: var(--surface); color: var(--muted);
       border: 1px solid var(--border); border-radius: 12px; padding: 12px;
-      font-family: var(--mono); font-size: 14px; font-weight: 600; cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .tab.active {
-      color: var(--text); border-color: var(--accent);
-      background: linear-gradient(180deg, rgba(124, 106, 255, 0.12), var(--surface));
-    }
+      font-family: var(--mono); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s ease; }
+    .subtab.active { color: var(--text); border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(124,106,255,.12), var(--surface)); }
 
-    /* Panels */
-    .panel { margin-top: 14px; }
-    .panel.hidden, .hidden { display: none !important; }
+    .panel { margin-top: 14px; } .panel.hidden, .hidden { display: none !important; }
 
     textarea, input[type="password"] {
       width: 100%; background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; color: var(--text); font-family: var(--mono);
-      font-size: 14px; padding: 14px; resize: vertical;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-    #text-input { min-height: 140px; }
-    textarea:focus, input:focus {
-      outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124, 106, 255, 0.18);
-    }
+      border-radius: 12px; color: var(--text); font-family: var(--mono); font-size: 14px;
+      padding: 14px; resize: vertical; transition: border-color .2s ease, box-shadow .2s ease; }
+    .maintext { min-height: 140px; }
+    textarea:focus, input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,106,255,.18); }
     textarea::placeholder, input::placeholder { color: var(--muted); }
 
-    /* Dropzones */
-    .dropzone {
-      border: 2px dashed var(--border); border-radius: 14px; padding: 34px 18px;
-      text-align: center; cursor: pointer; background: var(--surface);
-      transition: all 0.2s ease;
-    }
+    .dropzone { border: 2px dashed var(--border); border-radius: 14px; padding: 34px 18px;
+      text-align: center; cursor: pointer; background: var(--surface); transition: all .2s ease; }
     .dropzone:hover { border-color: #34344a; }
-    .dropzone.dragover {
-      border-color: var(--accent); background: rgba(124, 106, 255, 0.08);
-      box-shadow: inset 0 0 30px rgba(124, 106, 255, 0.15);
-    }
+    .dropzone.dragover { border-color: var(--accent); background: rgba(124,106,255,.08); box-shadow: inset 0 0 30px rgba(124,106,255,.15); }
     .dropzone .dz-ic { font-size: 32px; }
     .dropzone p { color: var(--muted); margin-top: 8px; font-size: 14px; }
-    .dropzone .fname { margin-top: 10px; font-family: var(--mono); font-size: 13px; color: var(--success); word-break: break-all; }
-    #preview { max-width: 100%; max-height: 260px; display: none; margin-top: 14px; border-radius: 10px; }
-    #audio-preview { display: none; width: 100%; margin-top: 14px; }
+    .dropzone .fname { margin-top: 10px; font-family: var(--mono); font-size: 13px; color: var(--green); word-break: break-all; }
+    .preview { max-width: 100%; max-height: 260px; display: none; margin-top: 14px; border-radius: 10px; }
+    .audio-preview { display: none; width: 100%; margin-top: 14px; }
 
-    /* Key section */
     .rsa-key-block { margin-top: 12px; }
-    .rsa-key-block .kl {
-      font-family: var(--mono); font-size: 12px; letter-spacing: 1px; margin-bottom: 6px; display: block;
-    }
+    .rsa-key-block .kl { font-family: var(--mono); font-size: 12px; letter-spacing: 1px; margin-bottom: 6px; display: block; }
     .rsa-key-block textarea { min-height: 90px; font-size: 11px; }
-    .note { font-size: 12px; margin-top: 6px; }
-    .note.info { color: var(--accent-2); }
-    .note.warn { color: var(--error); }
-    .btn-ghost {
-      font-family: var(--mono); font-size: 13px; background: var(--surface); color: var(--text);
-      border: 1px solid var(--border); border-radius: 12px; padding: 11px 18px; cursor: pointer;
-      margin-top: 14px; transition: all 0.2s ease;
-    }
+    .note { font-size: 12px; margin-top: 6px; } .note.info { color: var(--accent-2); } .note.warn { color: var(--red); }
+    .btn-ghost { font-family: var(--mono); font-size: 13px; background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 12px; padding: 11px 18px; cursor: pointer; margin-top: 14px; transition: all .2s ease; }
     .btn-ghost:hover { border-color: var(--accent); color: var(--accent-2); }
-    .gen-keys { margin-top: 14px; display: none; }
-    .gen-keys.show { display: block; }
+    .gen-keys { margin-top: 14px; display: none; } .gen-keys.show { display: block; }
     .keybox { margin-top: 12px; }
     .keybox .kh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .keybox .kh span { font-family: var(--mono); font-size: 12px; letter-spacing: 1px; }
     .copy { background: transparent; border: 1px solid var(--border); color: var(--muted);
-      border-radius: 8px; padding: 4px 10px; cursor: pointer; font-family: var(--mono); font-size: 11px; transition: all 0.2s ease; }
+      border-radius: 8px; padding: 4px 10px; cursor: pointer; font-family: var(--mono); font-size: 11px; transition: all .2s ease; }
     .copy:hover { border-color: var(--accent); color: var(--accent-2); }
 
-    /* Actions */
-    .actions { display: flex; gap: 12px; margin-top: 28px; }
-    .btn {
-      flex: 1; font-family: var(--mono); font-weight: 600; font-size: 16px;
-      border: none; border-radius: 14px; padding: 16px; cursor: pointer;
-      letter-spacing: 0.5px; transition: filter 0.2s ease, transform 0.1s ease;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .btn:active { transform: scale(0.99); }
-    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn { width: 100%; font-family: var(--mono); font-weight: 600; font-size: 16px; border: none;
+      border-radius: 14px; padding: 16px; cursor: pointer; letter-spacing: .5px; margin-top: 22px;
+      transition: filter .2s ease, transform .1s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn:active { transform: scale(.99); } .btn:disabled { opacity: .55; cursor: not-allowed; }
     .btn-enc { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; }
-    .btn-dec { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-    .btn-enc:hover:not(:disabled) { filter: brightness(1.1); }
-    .btn-dec:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-2); }
+    .btn-dec { background: linear-gradient(135deg, var(--green), #00a87e); color: #04130e; }
+    .btn:hover:not(:disabled) { filter: brightness(1.1); }
 
-    /* Output */
-    .output { margin-top: 26px; display: none; }
-    .output.show { display: block; animation: fadeUp 0.4s ease; }
+    .output { margin-top: 22px; display: none; } .output.show { display: block; animation: fadeUp .4s ease; }
     .out-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
-    .out-card.ok { border-color: rgba(0, 200, 150, 0.5); }
-    .out-card.err { border-color: rgba(255, 71, 87, 0.5); }
+    .out-card.ok { border-color: rgba(0,200,150,.5); } .out-card.err { border-color: rgba(255,107,107,.55); }
     .out-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .out-head .t { font-family: var(--mono); font-size: 13px; letter-spacing: 1px; }
-    .out-head .t.ok { color: var(--success); } .out-head .t.err { color: var(--error); }
-    .out-text {
-      background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
-      font-family: var(--mono); font-size: 13px; word-break: break-all; white-space: pre-wrap;
-      max-height: 240px; overflow-y: auto;
-    }
-    .dl {
-      display: inline-flex; align-items: center; gap: 10px;
-      background: linear-gradient(135deg, var(--success), #00a87e); color: #04130e; font-weight: 700;
-      border: none; border-radius: 12px; padding: 13px 22px; font-family: var(--mono); font-size: 14px; cursor: pointer;
-    }
+    .out-head .t.ok { color: var(--green); } .out-head .t.err { color: var(--red); }
+    .out-text { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px;
+      font-family: var(--mono); font-size: 13px; word-break: break-all; white-space: pre-wrap; max-height: 240px; overflow-y: auto; }
+    .dl { display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, var(--green), #00a87e); color: #04130e; font-weight: 700;
+      border: none; border-radius: 12px; padding: 13px 22px; font-family: var(--mono); font-size: 14px; cursor: pointer; }
     .dl:hover { filter: brightness(1.08); }
 
     footer { text-align: center; margin-top: 44px; color: var(--muted); font-family: var(--mono); font-size: 12px; letter-spacing: 1px; }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    @media (max-width: 600px) {
-      .algos { grid-template-columns: repeat(2, 1fr); }
-      .logo .en { display: none; }
-    }
+    @media (max-width: 640px) { .algos { grid-template-columns: repeat(2, 1fr); } .logo .en { display: none; } }
   </style>
 </head>
 <body dir="rtl" data-lang="ar">
   <div class="container">
-    <!-- Header -->
     <header>
-      <div class="logo">
-        <span class="ar">تشفير</span>
-        <span class="sep">|</span>
-        <span class="en">Tashfeer</span>
-      </div>
+      <div class="logo"><span class="ar">تشفير</span><span class="sep">|</span><span class="en">Tashfeer</span></div>
       <button class="lang-btn" id="lang-btn" onclick="toggleLang()">English</button>
     </header>
 
-    <!-- Algorithm cards -->
-    <div class="label" data-ar="الخوارزمية" data-en="Algorithm">الخوارزمية</div>
+    <!-- Main mode tabs -->
+    <div class="maintabs">
+      <button class="maintab enc active" data-main="encrypt" onclick="switchMain('encrypt')" data-ar="🔐 تشفير" data-en="🔐 Encrypt">🔐 تشفير</button>
+      <button class="maintab dec" data-main="decrypt" onclick="switchMain('decrypt')" data-ar="🔓 فك التشفير" data-en="🔓 Decrypt">🔓 فك التشفير</button>
+    </div>
+
+    <!-- Shared algorithm selector (7 cards) -->
+    <div class="label" data-ar="الخوارزمية (مشتركة)" data-en="Algorithm (shared)">الخوارزمية</div>
     <div class="algos">
-      <div class="algo active" data-algo="aes" onclick="selectAlgo(this)">
-        <div class="ic">🔒</div><div class="nm">AES-256</div>
-        <div class="ds" data-ar="عسكري" data-en="Military">عسكري</div>
-      </div>
-      <div class="algo" data-algo="rsa" onclick="selectAlgo(this)">
-        <div class="ic">🔑</div><div class="nm">RSA-2048</div>
-        <div class="ds" data-ar="مفتاحان" data-en="Asymmetric">مفتاحان</div>
-      </div>
-      <div class="algo" data-algo="chacha" onclick="selectAlgo(this)">
-        <div class="ic">⚡</div><div class="nm">ChaCha20</div>
-        <div class="ds" data-ar="للجوال" data-en="Mobile">للجوال</div>
-      </div>
-      <div class="algo" data-algo="3des" onclick="selectAlgo(this)">
-        <div class="ic">📚</div><div class="nm">Triple-DES</div>
-        <div class="ds" data-ar="تعليمي" data-en="Legacy">تعليمي</div>
-      </div>
+      <div class="algo active" data-algo="aes" onclick="selectAlgo(this)"><div class="ic">🛡️</div><div class="nm">AES-256-GCM</div><div class="ds" data-ar="معيار عسكري" data-en="Military grade">معيار عسكري</div></div>
+      <div class="algo" data-algo="rsa" onclick="selectAlgo(this)"><div class="ic">🔑</div><div class="nm">RSA-2048</div><div class="ds" data-ar="مفتاحان" data-en="Asymmetric">مفتاحان</div></div>
+      <div class="algo" data-algo="chacha" onclick="selectAlgo(this)"><div class="ic">⚡</div><div class="nm">ChaCha20</div><div class="ds" data-ar="محسّن للجوال" data-en="Mobile">محسّن للجوال</div></div>
+      <div class="algo" data-algo="3des" onclick="selectAlgo(this)"><div class="ic">📚</div><div class="nm">Triple-DES</div><div class="ds" data-ar="تعليمي" data-en="Legacy">تعليمي</div></div>
+      <div class="algo" data-algo="camellia" onclick="selectAlgo(this)"><div class="ic">🌸</div><div class="nm">Camellia-256</div><div class="ds" data-ar="معيار ياباني" data-en="Japanese std">معيار ياباني</div></div>
+      <div class="algo" data-algo="aescbc" onclick="selectAlgo(this)"><div class="ic">🔏</div><div class="nm">AES-CBC+HMAC</div><div class="ds" data-ar="تشفير ثم توثيق" data-en="Encrypt-then-MAC">تشفير ثم توثيق</div></div>
+      <div class="algo" data-algo="fernet" onclick="selectAlgo(this)"><div class="ic">🧰</div><div class="nm">Fernet</div><div class="ds" data-ar="عالي المستوى" data-en="High-level">عالي المستوى</div></div>
     </div>
 
-    <!-- Mode tabs -->
-    <div class="label" data-ar="نوع المُدخل" data-en="Input type">نوع المُدخل</div>
-    <div class="tabs">
-      <button class="tab active" data-mode="text" onclick="selectMode(this)" data-ar="📝 نص" data-en="📝 Text">📝 نص</button>
-      <button class="tab" data-mode="file" onclick="selectMode(this)" data-ar="📁 ملفات" data-en="📁 Files">📁 ملفات</button>
-      <button class="tab" data-mode="image" onclick="selectMode(this)" data-ar="🖼 صور" data-en="🖼 Images">🖼 صور</button>
-      <button class="tab" data-mode="audio" onclick="selectMode(this)" data-ar="🎵 صوت" data-en="🎵 Audio">🎵 صوت</button>
-    </div>
-
-    <!-- Text panel -->
-    <div class="panel" id="panel-text">
-      <textarea id="text-input" rows="6"
-        data-ar-ph="اكتب النص هنا..." data-en-ph="Type your text here..."
-        placeholder="اكتب النص هنا..."></textarea>
-    </div>
-
-    <!-- File panel -->
-    <div class="panel hidden" id="panel-file">
-      <div class="dropzone" id="file-drop">
-        <div class="dz-ic">📁</div>
-        <p data-ar="اسحب أي ملف هنا أو انقر للاختيار" data-en="Drag any file here or click to browse">اسحب أي ملف هنا أو انقر للاختيار</p>
-        <div class="fname" id="file-name"></div>
-        <input type="file" accept="*/*" class="hidden" />
-      </div>
-    </div>
-
-    <!-- Image panel -->
-    <div class="panel hidden" id="panel-image">
-      <div class="dropzone" id="image-drop">
-        <div class="dz-ic">🖼</div>
-        <p data-ar="اسحب صورة هنا أو انقر للاختيار" data-en="Drop image here or click to browse">اسحب صورة هنا أو انقر للاختيار</p>
-        <div class="fname" id="image-name"></div>
-        <input type="file" accept="image/*" class="hidden" />
-        <img id="preview" alt="preview" />
-      </div>
-    </div>
-
-    <!-- Audio panel -->
-    <div class="panel hidden" id="panel-audio">
-      <div class="dropzone" id="audio-drop">
-        <div class="dz-ic">🎵</div>
-        <p data-ar="اسحب ملفاً صوتياً هنا أو انقر للاختيار" data-en="Drop audio file here or click to browse">اسحب ملفاً صوتياً هنا أو انقر للاختيار</p>
-        <div class="fname" id="audio-name"></div>
-        <input type="file" accept="audio/*" class="hidden" />
-        <audio id="audio-preview" controls></audio>
-      </div>
-    </div>
-
-    <!-- Key section -->
-    <div class="label" data-ar="المفتاح" data-en="Key">المفتاح</div>
-
+    <!-- Shared key section -->
+    <div class="label" data-ar="المفتاح (مشترك)" data-en="Key (shared)">المفتاح</div>
     <div id="password-section">
-      <input type="password" id="password"
-        data-ar-ph="كلمة المرور" data-en-ph="Password" placeholder="كلمة المرور" />
+      <input type="password" id="password" data-ar-ph="كلمة المرور (أي طول)" data-en-ph="Password (any length)" placeholder="كلمة المرور (أي طول)" />
     </div>
-
     <div id="rsa-section" class="hidden">
-      <div class="rsa-key-block">
+      <div class="rsa-key-block" id="rsa-public-block">
         <span class="kl" data-ar="المفتاح العام (للتشفير)" data-en="Public key (encrypt)">المفتاح العام (للتشفير)</span>
-        <textarea id="public-key"
-          data-ar-ph="ألصق المفتاح العام (PEM)..." data-en-ph="Paste public key (PEM)..."
-          placeholder="ألصق المفتاح العام (PEM)..."></textarea>
-        <div class="note info" data-ar="شارك مفتاحك العام لاستقبال رسائل مشفّرة."
-          data-en="Share your public key to receive encrypted messages.">شارك مفتاحك العام لاستقبال رسائل مشفّرة.</div>
+        <textarea id="public-key" data-ar-ph="ألصق المفتاح العام (PEM)..." data-en-ph="Paste public key (PEM)..." placeholder="ألصق المفتاح العام (PEM)..."></textarea>
+        <div class="note info" data-ar="شارك مفتاحك العام لاستقبال رسائل مشفّرة." data-en="Share your public key to receive encrypted messages.">شارك مفتاحك العام لاستقبال رسائل مشفّرة.</div>
       </div>
-      <div class="rsa-key-block">
+      <div class="rsa-key-block hidden" id="rsa-private-block">
         <span class="kl" data-ar="المفتاح الخاص (لفك التشفير)" data-en="Private key (decrypt)">المفتاح الخاص (لفك التشفير)</span>
-        <textarea id="private-key"
-          data-ar-ph="ألصق المفتاح الخاص (PEM)..." data-en-ph="Paste private key (PEM)..."
-          placeholder="ألصق المفتاح الخاص (PEM)..."></textarea>
-        <div class="note warn" data-ar="لا تشارك مفتاحك الخاص أبداً."
-          data-en="Never share your private key.">لا تشارك مفتاحك الخاص أبداً.</div>
+        <textarea id="private-key" data-ar-ph="ألصق المفتاح الخاص (PEM)..." data-en-ph="Paste private key (PEM)..." placeholder="ألصق المفتاح الخاص (PEM)..."></textarea>
+        <div class="note warn" data-ar="لا تشارك مفتاحك الخاص أبداً." data-en="Never share your private key.">لا تشارك مفتاحك الخاص أبداً.</div>
       </div>
-
-      <button class="btn-ghost" id="generate-keys" onclick="generateKeys()"
-        data-ar="🔑 توليد مفاتيح RSA" data-en="🔑 Generate RSA Keys">🔑 توليد مفاتيح RSA</button>
-
+      <button class="btn-ghost" id="generate-keys" onclick="generateKeys()" data-ar="🔑 توليد مفاتيح RSA" data-en="🔑 Generate Key Pair">🔑 توليد مفاتيح RSA</button>
       <div class="gen-keys" id="gen-keys">
-        <div class="keybox">
-          <div class="kh">
-            <span data-ar="المفتاح العام" data-en="Public Key">المفتاح العام</span>
-            <button class="copy" onclick="copyFrom('gen-public', this)" data-ar="نسخ" data-en="Copy">نسخ</button>
-          </div>
-          <textarea id="gen-public" readonly></textarea>
-        </div>
-        <div class="keybox">
-          <div class="kh">
-            <span data-ar="المفتاح الخاص" data-en="Private Key">المفتاح الخاص</span>
-            <button class="copy" onclick="copyFrom('gen-private', this)" data-ar="نسخ" data-en="Copy">نسخ</button>
-          </div>
-          <textarea id="gen-private" readonly></textarea>
-        </div>
+        <div class="keybox"><div class="kh"><span data-ar="المفتاح العام" data-en="Public Key">المفتاح العام</span>
+          <button class="copy" onclick="copyFrom('gen-public', this)" data-ar="نسخ" data-en="Copy">نسخ</button></div>
+          <textarea id="gen-public" readonly></textarea></div>
+        <div class="keybox"><div class="kh"><span data-ar="المفتاح الخاص" data-en="Private Key">المفتاح الخاص</span>
+          <button class="copy" onclick="copyFrom('gen-private', this)" data-ar="نسخ" data-en="Copy">نسخ</button></div>
+          <textarea id="gen-private" readonly></textarea></div>
       </div>
     </div>
 
-    <!-- Actions -->
-    <div class="actions">
-      <button class="btn btn-enc" id="encrypt-btn" onclick="doAction('encrypt')"
-        data-ar="🔐 تشفير" data-en="🔐 Encrypt">🔐 تشفير</button>
-      <button class="btn btn-dec" id="decrypt-btn" onclick="doAction('decrypt')"
-        data-ar="🔓 فك التشفير" data-en="🔓 Decrypt">🔓 فك التشفير</button>
-    </div>
-
-    <!-- Output -->
-    <div class="output" id="output">
-      <div class="out-card" id="out-card">
-        <div class="out-head">
-          <span class="t" id="out-title"></span>
-          <button class="copy hidden" id="out-copy" onclick="copyOutput(this)" data-ar="نسخ" data-en="Copy">نسخ</button>
-        </div>
-        <div class="out-text hidden" id="out-text"></div>
-        <button class="dl hidden" id="out-dl"><span>⬇</span><span id="dl-name"></span></button>
+    <!-- ============ ENCRYPT VIEW ============ -->
+    <div class="view" id="enc-view">
+      <div class="label" data-ar="المُدخل — نص صريح" data-en="Input — plaintext">المُدخل</div>
+      <div class="subtabs">
+        <button class="subtab active" data-sub="text" onclick="selectSub('enc', this)" data-ar="📝 نص" data-en="📝 Text">📝 نص</button>
+        <button class="subtab" data-sub="file" onclick="selectSub('enc', this)" data-ar="📁 ملفات" data-en="📁 Files">📁 ملفات</button>
+        <button class="subtab" data-sub="image" onclick="selectSub('enc', this)" data-ar="🖼 صور" data-en="🖼 Images">🖼 صور</button>
+        <button class="subtab" data-sub="audio" onclick="selectSub('enc', this)" data-ar="🎵 صوت" data-en="🎵 Audio">🎵 صوت</button>
       </div>
+      <div class="panel" id="enc-panel-text"><textarea class="maintext" id="enc-text" data-ar-ph="اكتب النص الصريح هنا..." data-en-ph="Type your plaintext here..." placeholder="اكتب النص الصريح هنا..."></textarea></div>
+      <div class="panel hidden" id="enc-panel-file"><div class="dropzone" id="enc-file-drop"><div class="dz-ic">📁</div>
+        <p data-ar="اسحب أي ملف هنا أو انقر للاختيار" data-en="Drag any file here or click to browse">اسحب أي ملف هنا أو انقر للاختيار</p>
+        <div class="fname" id="enc-file-name"></div><input type="file" accept="*/*" class="hidden" /></div></div>
+      <div class="panel hidden" id="enc-panel-image"><div class="dropzone" id="enc-image-drop"><div class="dz-ic">🖼</div>
+        <p data-ar="اسحب صورة هنا أو انقر للاختيار" data-en="Drop image here or click to browse">اسحب صورة هنا أو انقر للاختيار</p>
+        <div class="fname" id="enc-image-name"></div><input type="file" accept="image/*" class="hidden" /><img class="preview" id="enc-preview" alt="preview" /></div></div>
+      <div class="panel hidden" id="enc-panel-audio"><div class="dropzone" id="enc-audio-drop"><div class="dz-ic">🎵</div>
+        <p data-ar="اسحب ملفاً صوتياً هنا أو انقر للاختيار" data-en="Drop audio file here or click to browse">اسحب ملفاً صوتياً هنا أو انقر للاختيار</p>
+        <div class="fname" id="enc-audio-name"></div><input type="file" accept="audio/*" class="hidden" /><audio class="audio-preview" id="enc-audio-preview" controls></audio></div></div>
+      <button class="btn btn-enc" id="enc-btn" onclick="doAction('encrypt')" data-ar="🔐 تشفير" data-en="🔐 Encrypt">🔐 تشفير</button>
+      <div class="output" id="enc-output"><div class="out-card" id="enc-out-card">
+        <div class="out-head"><span class="t" id="enc-out-title"></span>
+          <button class="copy hidden" id="enc-out-copy" onclick="copyOutput('enc', this)" data-ar="نسخ" data-en="Copy">نسخ</button></div>
+        <div class="out-text hidden" id="enc-out-text"></div>
+        <button class="dl hidden" id="enc-out-dl"><span>⬇</span><span id="enc-dl-name"></span></button></div></div>
     </div>
 
-    <footer>تشفير · Tashfeer — local-only encryption</footer>
+    <!-- ============ DECRYPT VIEW ============ -->
+    <div class="view hidden" id="dec-view">
+      <div class="label" data-ar="المُدخل — نص مشفّر / ملف" data-en="Input — ciphertext / file">المُدخل</div>
+      <div class="subtabs">
+        <button class="subtab active" data-sub="text" onclick="selectSub('dec', this)" data-ar="📝 نص" data-en="📝 Text">📝 نص</button>
+        <button class="subtab" data-sub="file" onclick="selectSub('dec', this)" data-ar="📁 ملفات" data-en="📁 Files">📁 ملفات</button>
+        <button class="subtab" data-sub="image" onclick="selectSub('dec', this)" data-ar="🖼 صور" data-en="🖼 Images">🖼 صور</button>
+        <button class="subtab" data-sub="audio" onclick="selectSub('dec', this)" data-ar="🎵 صوت" data-en="🎵 Audio">🎵 صوت</button>
+      </div>
+      <div class="panel" id="dec-panel-text"><textarea class="maintext" id="dec-text" data-ar-ph="ألصق النص المشفّر (Base64) هنا..." data-en-ph="Paste the encrypted text (Base64) here..." placeholder="ألصق النص المشفّر (Base64) هنا..."></textarea></div>
+      <div class="panel hidden" id="dec-panel-file"><div class="dropzone" id="dec-file-drop"><div class="dz-ic">📁</div>
+        <p data-ar="اسحب ملف ‎.tashfeer هنا أو انقر للاختيار" data-en="Drop a .tashfeer file here or click to browse">اسحب ملف ‎.tashfeer هنا أو انقر للاختيار</p>
+        <div class="fname" id="dec-file-name"></div><input type="file" accept="*/*" class="hidden" /></div></div>
+      <div class="panel hidden" id="dec-panel-image"><div class="dropzone" id="dec-image-drop"><div class="dz-ic">🖼</div>
+        <p data-ar="اسحب الصورة المشفّرة (‎.tashfeer)" data-en="Drop the encrypted image (.tashfeer)">اسحب الصورة المشفّرة (‎.tashfeer)</p>
+        <div class="fname" id="dec-image-name"></div><input type="file" accept="*/*" class="hidden" /><img class="preview" id="dec-preview" alt="preview" /></div></div>
+      <div class="panel hidden" id="dec-panel-audio"><div class="dropzone" id="dec-audio-drop"><div class="dz-ic">🎵</div>
+        <p data-ar="اسحب الصوت المشفّر (‎.tashfeer)" data-en="Drop the encrypted audio (.tashfeer)">اسحب الصوت المشفّر (‎.tashfeer)</p>
+        <div class="fname" id="dec-audio-name"></div><input type="file" accept="*/*" class="hidden" /><audio class="audio-preview" id="dec-audio-preview" controls></audio></div></div>
+      <button class="btn btn-dec" id="dec-btn" onclick="doAction('decrypt')" data-ar="🔓 فك التشفير" data-en="🔓 Decrypt">🔓 فك التشفير</button>
+      <div class="output" id="dec-output"><div class="out-card" id="dec-out-card">
+        <div class="out-head"><span class="t" id="dec-out-title"></span>
+          <button class="copy hidden" id="dec-out-copy" onclick="copyOutput('dec', this)" data-ar="نسخ" data-en="Copy">نسخ</button></div>
+        <div class="out-text hidden" id="dec-out-text"></div>
+        <button class="dl hidden" id="dec-out-dl"><span>⬇</span><span id="dec-dl-name"></span></button></div></div>
+    </div>
+
+    <footer>تشفير · Tashfeer — 7 algorithms · local-only encryption</footer>
   </div>
 
   <script>
     const $ = (id) => document.getElementById(id);
-    const state = { lang: "ar", algo: "aes", mode: "text" };
+    const state = { lang: "ar", main: "encrypt", algo: "aes", sub: { enc: "text", dec: "text" } };
 
-    // ---------- Language ----------
     function applyLang() {
       const lang = state.lang;
       document.body.setAttribute("data-lang", lang);
       document.body.dir = lang === "ar" ? "rtl" : "ltr";
       document.documentElement.lang = lang;
-      document.querySelectorAll("[data-ar]").forEach((el) => {
-        const v = el.getAttribute("data-" + lang);
-        if (v !== null) el.textContent = v;
-      });
-      document.querySelectorAll("[data-ar-ph]").forEach((el) => {
-        const v = el.getAttribute("data-" + lang + "-ph");
-        if (v !== null) el.setAttribute("placeholder", v);
-      });
+      document.querySelectorAll("[data-ar]").forEach((el) => { const v = el.getAttribute("data-" + lang); if (v !== null) el.textContent = v; });
+      document.querySelectorAll("[data-ar-ph]").forEach((el) => { const v = el.getAttribute("data-" + lang + "-ph"); if (v !== null) el.setAttribute("placeholder", v); });
       $("lang-btn").textContent = lang === "ar" ? "English" : "عربي";
     }
-    function toggleLang() {
-      state.lang = state.lang === "ar" ? "en" : "ar";
-      applyLang();
+    function toggleLang() { state.lang = state.lang === "ar" ? "en" : "ar"; applyLang(); }
+
+    // Switch between the two main modes; clear everything so plaintext and
+    // ciphertext never mix.
+    function switchMain(main) {
+      state.main = main;
+      document.querySelectorAll(".maintab").forEach((t) => t.classList.toggle("active", t.getAttribute("data-main") === main));
+      $("enc-view").classList.toggle("hidden", main !== "encrypt");
+      $("dec-view").classList.toggle("hidden", main !== "decrypt");
+      updateKeySection();
+      clearAll();
     }
 
-    // ---------- Algorithm ----------
     function selectAlgo(el) {
       state.algo = el.getAttribute("data-algo");
       document.querySelectorAll(".algo").forEach((c) => c.classList.toggle("active", c === el));
+      updateKeySection();
+      hideOutput("enc"); hideOutput("dec");
+    }
+
+    // Key section adapts to algorithm and (for RSA) the current main mode.
+    function updateKeySection() {
       const isRSA = state.algo === "rsa";
       $("password-section").classList.toggle("hidden", isRSA);
       $("rsa-section").classList.toggle("hidden", !isRSA);
-      hideOutput();
+      $("rsa-public-block").classList.toggle("hidden", state.main !== "encrypt");
+      $("rsa-private-block").classList.toggle("hidden", state.main !== "decrypt");
     }
 
-    // ---------- Mode ----------
-    function selectMode(el) {
-      state.mode = el.getAttribute("data-mode");
-      document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t === el));
-      ["text", "file", "image", "audio"].forEach((m) =>
-        $("panel-" + m).classList.toggle("hidden", m !== state.mode)
-      );
-      hideOutput();
+    function selectSub(prefix, el) {
+      state.sub[prefix] = el.getAttribute("data-sub");
+      el.parentElement.querySelectorAll(".subtab").forEach((t) => t.classList.toggle("active", t === el));
+      ["text", "file", "image", "audio"].forEach((m) => $(prefix + "-panel-" + m).classList.toggle("hidden", m !== state.sub[prefix]));
+      hideOutput(prefix);
     }
 
-    // ---------- Dropzones (file / image / audio) ----------
-    function setupDrop(mode) {
-      const drop = $(mode + "-drop");
-      const input = drop.querySelector('input[type="file"]');
-      drop.addEventListener("click", () => input.click());
-      input.addEventListener("change", () => input.files[0] && onFile(mode, input.files[0]));
-      ["dragenter", "dragover"].forEach((ev) =>
-        drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("dragover"); })
-      );
-      ["dragleave", "drop"].forEach((ev) =>
-        drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("dragover"); })
-      );
-      drop.addEventListener("drop", (e) => {
-        if (e.dataTransfer.files[0]) {
-          input.files = e.dataTransfer.files;
-          onFile(mode, e.dataTransfer.files[0]);
-        }
+    function setupView(prefix) {
+      ["file", "image", "audio"].forEach((mode) => {
+        const drop = $(prefix + "-" + mode + "-drop");
+        const input = drop.querySelector('input[type="file"]');
+        drop.addEventListener("click", () => input.click());
+        input.addEventListener("change", () => input.files[0] && onFile(prefix, mode, input.files[0]));
+        ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("dragover"); }));
+        ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("dragover"); }));
+        drop.addEventListener("drop", (e) => { if (e.dataTransfer.files[0]) { input.files = e.dataTransfer.files; onFile(prefix, mode, e.dataTransfer.files[0]); } });
       });
     }
-    function onFile(mode, file) {
-      const kb = file.size < 1024 ? file.size + " B"
-        : file.size < 1048576 ? (file.size / 1024).toFixed(1) + " KB"
-        : (file.size / 1048576).toFixed(1) + " MB";
-      $(mode + "-name").textContent = "✓ " + file.name + "  ·  " + kb;
-      if (mode === "image") {
-        const img = $("preview");
-        img.src = URL.createObjectURL(file);
-        img.style.display = "block";
-      }
-      if (mode === "audio") {
-        const au = $("audio-preview");
-        au.src = URL.createObjectURL(file);
-        au.style.display = "block";
-      }
+    function onFile(prefix, mode, file) {
+      const kb = file.size < 1024 ? file.size + " B" : file.size < 1048576 ? (file.size / 1024).toFixed(1) + " KB" : (file.size / 1048576).toFixed(1) + " MB";
+      $(prefix + "-" + mode + "-name").textContent = "✓ " + file.name + "  ·  " + kb;
+      // Preview only makes sense for raw images/audio (encrypt side).
+      if (mode === "image") { const img = $(prefix + "-preview"); if (prefix === "enc") { img.src = URL.createObjectURL(file); img.style.display = "block"; } else { img.style.display = "none"; } }
+      if (mode === "audio") { const au = $(prefix + "-audio-preview"); if (prefix === "enc") { au.src = URL.createObjectURL(file); au.style.display = "block"; } else { au.style.display = "none"; } }
     }
-    ["file", "image", "audio"].forEach(setupDrop);
+    ["enc", "dec"].forEach(setupView);
 
-    // ---------- RSA key generation ----------
+    function clearAll() {
+      ["enc", "dec"].forEach((p) => {
+        $(p + "-text").value = "";
+        ["file", "image", "audio"].forEach((m) => {
+          const input = $(p + "-" + m + "-drop").querySelector('input[type="file"]');
+          input.value = ""; $(p + "-" + m + "-name").textContent = "";
+        });
+        const img = $(p + "-preview"); img.style.display = "none"; img.removeAttribute("src");
+        const au = $(p + "-audio-preview"); au.style.display = "none"; au.removeAttribute("src");
+        hideOutput(p);
+      });
+    }
+
     async function generateKeys() {
-      const btn = $("generate-keys");
-      btn.disabled = true;
-      const prev = btn.textContent;
-      btn.textContent = state.lang === "ar" ? "...جاري التوليد" : "Generating...";
+      const btn = $("generate-keys"); btn.disabled = true;
+      const prev = btn.textContent; btn.textContent = state.lang === "ar" ? "...جاري التوليد" : "Generating...";
       try {
         const res = await fetch("/generate-rsa-keys", { method: "POST" });
         const data = await res.json();
         if (data.success) {
-          $("gen-public").value = data.public_key;
-          $("gen-private").value = data.private_key;
-          $("public-key").value = data.public_key;
-          $("private-key").value = data.private_key;
+          $("gen-public").value = data.public_key; $("gen-private").value = data.private_key;
+          $("public-key").value = data.public_key; $("private-key").value = data.private_key;
           $("gen-keys").classList.add("show");
-        } else {
-          flashError(data.error || "Key generation failed");
-        }
-      } catch (err) {
-        flashError("Connection error: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = prev;
-      }
+        } else { alert(data.error || "Key generation failed"); }
+      } catch (err) { alert("Connection error: " + err.message); }
+      finally { btn.disabled = false; btn.textContent = prev; }
     }
 
-    // ---------- Copy helpers ----------
     function copyFrom(id, btn) { copyText($(id).value, btn); }
-    function copyOutput(btn) { copyText($("out-text").textContent, btn); }
+    function copyOutput(prefix, btn) { copyText($(prefix + "-out-text").textContent, btn); }
     function copyText(text, btn) {
       navigator.clipboard.writeText(text).then(() => {
-        const prev = btn.textContent;
-        btn.textContent = state.lang === "ar" ? "✓ تم" : "✓ Copied";
+        const prev = btn.textContent; btn.textContent = state.lang === "ar" ? "✓ تم" : "✓ Copied";
         setTimeout(() => (btn.textContent = prev), 1300);
       });
     }
 
-    // ---------- Output ----------
-    function hideOutput() { $("output").classList.remove("show"); }
-    function showText(title, text, isErr) {
-      const card = $("out-card");
-      card.className = "out-card " + (isErr ? "err" : "ok");
-      const t = $("out-title"); t.className = "t " + (isErr ? "err" : "ok"); t.textContent = title;
-      $("out-text").classList.remove("hidden"); $("out-text").textContent = text;
-      $("out-copy").classList.toggle("hidden", isErr);
-      $("out-dl").classList.add("hidden");
-      $("output").classList.add("show");
-      $("output").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    function hideOutput(prefix) { $(prefix + "-output").classList.remove("show"); }
+    function showText(prefix, title, text, isErr) {
+      const card = $(prefix + "-out-card"); card.className = "out-card " + (isErr ? "err" : "ok");
+      const t = $(prefix + "-out-title"); t.className = "t " + (isErr ? "err" : "ok"); t.textContent = title;
+      $(prefix + "-out-text").classList.remove("hidden"); $(prefix + "-out-text").textContent = text;
+      $(prefix + "-out-copy").classList.toggle("hidden", isErr); $(prefix + "-out-dl").classList.add("hidden");
+      $(prefix + "-output").classList.add("show"); $(prefix + "-output").scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-    function showDownload(title, blob, filename) {
-      const card = $("out-card"); card.className = "out-card ok";
-      const t = $("out-title"); t.className = "t ok"; t.textContent = title;
-      $("out-text").classList.add("hidden"); $("out-copy").classList.add("hidden");
-      const dl = $("out-dl"); dl.classList.remove("hidden"); $("dl-name").textContent = filename;
-      dl.onclick = () => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = filename; a.click();
-        URL.revokeObjectURL(url);
-      };
-      $("output").classList.add("show");
-      $("output").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    function showDownload(prefix, title, blob, filename) {
+      const card = $(prefix + "-out-card"); card.className = "out-card ok";
+      const t = $(prefix + "-out-title"); t.className = "t ok"; t.textContent = title;
+      $(prefix + "-out-text").classList.add("hidden"); $(prefix + "-out-copy").classList.add("hidden");
+      const dl = $(prefix + "-out-dl"); dl.classList.remove("hidden"); $(prefix + "-dl-name").textContent = filename;
+      dl.onclick = () => { const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); };
+      $(prefix + "-output").classList.add("show"); $(prefix + "-output").scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-    function flashError(msg) { showText(state.lang === "ar" ? "✕ خطأ" : "✕ Error", msg, true); }
+    function flashError(prefix, msg) { showText(prefix, state.lang === "ar" ? "✕ خطأ" : "✕ Error", msg, true); }
 
-    // ---------- Submit ----------
     async function doAction(action) {
       const isEnc = action === "encrypt";
-      const btn = $(action + "-btn");
+      const prefix = isEnc ? "enc" : "dec";
+      const sub = state.sub[prefix];
+      const btn = $(prefix + "-btn");
 
       const fd = new FormData();
       fd.append("algorithm", state.algo);
-      fd.append("mode", state.mode);
+      fd.append("mode", sub);
 
-      if (state.mode === "text") {
-        const text = $("text-input").value;
-        if (!text) return flashError(state.lang === "ar" ? "أدخل نصاً أولاً." : "Enter some text first.");
+      if (sub === "text") {
+        const text = $(prefix + "-text").value;
+        if (!text) return flashError(prefix, state.lang === "ar" ? (isEnc ? "أدخل نصاً أولاً." : "ألصق النص المشفّر أولاً.") : (isEnc ? "Enter some text first." : "Paste the ciphertext first."));
         fd.append("text_input", text);
       } else {
-        const input = $(state.mode + "-drop").querySelector('input[type="file"]');
-        if (!input.files[0]) return flashError(state.lang === "ar" ? "اختر ملفاً أولاً." : "Choose a file first.");
+        const input = $(prefix + "-" + sub + "-drop").querySelector('input[type="file"]');
+        if (!input.files[0]) return flashError(prefix, state.lang === "ar" ? "اختر ملفاً أولاً." : "Choose a file first.");
         fd.append("file_input", input.files[0]);
       }
 
       if (state.algo === "rsa") {
         const key = isEnc ? $("public-key").value.trim() : $("private-key").value.trim();
-        if (!key) return flashError(isEnc
-          ? (state.lang === "ar" ? "ألصق المفتاح العام." : "Paste the public key.")
-          : (state.lang === "ar" ? "ألصق المفتاح الخاص." : "Paste the private key."));
+        if (!key) return flashError(prefix, isEnc ? (state.lang === "ar" ? "ألصق المفتاح العام." : "Paste the public key.") : (state.lang === "ar" ? "ألصق المفتاح الخاص." : "Paste the private key."));
         fd.append(isEnc ? "public_key" : "private_key", key);
       } else {
         const pw = $("password").value;
-        if (!pw) return flashError(state.lang === "ar" ? "أدخل كلمة المرور." : "Enter a password.");
+        if (!pw) return flashError(prefix, state.lang === "ar" ? "أدخل كلمة المرور." : "Enter a password.");
         fd.append("password", pw);
       }
 
-      const labelAr = isEnc ? "...جاري التشفير" : "...جاري فك التشفير";
-      const labelEn = isEnc ? "Encrypting..." : "Decrypting...";
-      btn.disabled = true;
-      const original = btn.innerHTML;
-      btn.innerHTML = '<span class="spinner"></span>' + (state.lang === "ar" ? labelAr : labelEn);
-
+      const lab = isEnc ? (state.lang === "ar" ? "...جاري التشفير" : "Encrypting...") : (state.lang === "ar" ? "...جاري فك التشفير" : "Decrypting...");
+      btn.disabled = true; const original = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner"></span>' + lab;
       try {
         const res = await fetch("/" + action, { method: "POST", body: fd });
         const ctype = res.headers.get("Content-Type") || "";
         if (ctype.includes("application/json")) {
           const data = await res.json();
           if (data.success) {
-            const title = isEnc
-              ? (state.lang === "ar" ? "✓ تم التشفير" : "✓ Encrypted")
-              : (state.lang === "ar" ? "✓ تم فك التشفير" : "✓ Decrypted");
-            showText(title, data.result, false);
-          } else {
-            flashError(data.error || "Operation failed.");
-          }
+            const title = isEnc ? (state.lang === "ar" ? "✓ تم التشفير" : "✓ Encrypted") : (state.lang === "ar" ? "✓ تم فك التشفير" : "✓ Decrypted");
+            showText(prefix, title, data.result, false);
+          } else { flashError(prefix, data.error || "Operation failed."); }
         } else {
           const blob = await res.blob();
-          const filename = parseFilename(res.headers.get("Content-Disposition"))
-            || (isEnc ? "output.tashfeer" : "decrypted_output");
-          const title = isEnc
-            ? (state.lang === "ar" ? "✓ تم تشفير الملف" : "✓ File encrypted")
-            : (state.lang === "ar" ? "✓ تم فك تشفير الملف" : "✓ File decrypted");
-          showDownload(title, blob, filename);
+          const filename = parseFilename(res.headers.get("Content-Disposition")) || (isEnc ? "output.tashfeer" : "decrypted_output");
+          const title = isEnc ? (state.lang === "ar" ? "✓ تم تشفير الملف" : "✓ File encrypted") : (state.lang === "ar" ? "✓ تم فك تشفير الملف" : "✓ File decrypted");
+          showDownload(prefix, title, blob, filename);
         }
-      } catch (err) {
-        flashError("Connection error: " + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = original;
-      }
+      } catch (err) { flashError(prefix, "Connection error: " + err.message); }
+      finally { btn.disabled = false; btn.innerHTML = original; }
     }
 
     function parseFilename(disposition) {
@@ -574,8 +433,7 @@
       return m ? decodeURIComponent(m[1]) : null;
     }
 
-    // ---------- Init ----------
-    applyLang();
+    applyLang(); updateKeySection();
   </script>
 </body>
 </html>
